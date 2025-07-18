@@ -6,7 +6,7 @@ import "./globals.css";
 import NextTopLoader from "nextjs-toploader";
 import { Footer, Header } from "@/components/reususables";
 
-const appName = "TeensYouths";
+const appName = "Ambassador Portal";
 const appColor = "#ffffff";
 
 export const metadata: Metadata = {

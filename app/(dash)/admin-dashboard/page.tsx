@@ -1,7 +1,9 @@
+import { AdminDashView } from "@/view";
 import React from "react";
-import { HomeView } from "@/view";
+
+
 const page = () => {
-	return <HomeView />;
+	return <AdminDashView />;
 };
 
 export default page;
