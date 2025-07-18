@@ -1,14 +1,13 @@
 "use client"
 
 import Image from "next/image"
-import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import signupIllus from "@/public/assets/svgs/signupIllus.svg"
 import brandLogo from "@/public/assets/images/brand-logo.png"
 import { FormField, SelectField } from "@/components/reususables";
 import backArrow from "@/public/assets/svgs/back-arrow.svg"
 import { useRouter } from "next/navigation";
-
+import { Button } from "@heroui/react";
 
 
 
@@ -16,6 +15,8 @@ import { useRouter } from "next/navigation";
 export default function SignupView() {
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedBank, setSelectedBank] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const router = useRouter();
 
   const bankOptions = [
@@ -213,6 +214,22 @@ export default function SignupView() {
     }
   }
 
+  const handleSubmit = async () => {
+    setLoading(true);
+  
+    try {
+      if (currentStep === 3) {
+        router.push("/admin-dashboard");
+      } else {
+        nextStep();
+      }
+    } catch (error) {
+      console.error("Submission error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   return (
     <div className="flex flex-col lg:flex-row h-auto lg:h-screen w-full lg:overflow-hidden">
@@ -279,10 +296,11 @@ export default function SignupView() {
 
             {/* Navigation Buttons */}
             <div className="flex gap-4">
-
               <Button
+                isLoading={loading}
+                spinner
                 type="button"
-                onClick={currentStep === 3 ? () => router.push("/admin-dashboard") : nextStep}
+                onPress={handleSubmit}
                 className="flex-1 h-12 bg-primaryBlue hover:bg-blue-700 text-white font-semibold text-sm"
               >
                 {currentStep === 3 ? "Create Account" : "Continue"}

@@ -1,17 +1,33 @@
 "use client"
 
 import Image from "next/image"
-import { Button } from "@/components/ui/button"
+import { Button } from "@heroui/react";
 import signupIllus from "@/public/assets/svgs/signupIllus.svg"
 import brandLogo from "@/public/assets/images/brand-logo.png"
 import { FormField } from "@/components/reususables";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 
 
 
 export default function SigninView() {
     const router = useRouter();
+    const [loading, setLoading] = useState(false);
+
+
+    const handleSubmit = async () => {
+        setLoading(true);
+
+        try {
+            router.push("/admin-dashboard");
+        }
+        catch (error) {
+            console.error("Submission error:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
 
     return (
@@ -95,7 +111,8 @@ export default function SigninView() {
 
                             <Button
                                 type="button"
-                                onClick={() => router.push("/admin-dashboard")}
+                                isLoading={loading}
+                                onPress={handleSubmit}
                                 className="flex-1 h-12 bg-primaryBlue hover:bg-blue-700 text-white font-semibold text-sm"
                             >
                                 Continue
