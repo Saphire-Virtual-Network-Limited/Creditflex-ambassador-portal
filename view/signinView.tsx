@@ -7,6 +7,12 @@ import brandLogo from "@/public/assets/images/brand-logo.png"
 import { FormField } from "@/components/reususables";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { z } from "zod";
+
+// const FnameSchema = createSchema((value) => value.length >= 2 && value.length <= 100, "First name must be between 2-100 characters");
+// const LnameSchema = createSchema((value) => value.length >= 2 && value.length <= 100, "Last name must be between 2-100 characters");
+
+
 
 
 
@@ -14,6 +20,9 @@ import { useState } from "react";
 export default function SigninView() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    
+
+
 
 
     const handleSubmit = async () => {
@@ -78,7 +87,7 @@ export default function SigninView() {
                     </div>
 
                     {/* Form */}
-                    <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+                    <form className="space-y-6">
                         <div className="space-y-6">
                             <div>
                                 <FormField
@@ -110,7 +119,6 @@ export default function SigninView() {
                         <div className="flex gap-4">
 
                             <Button
-                                type="button"
                                 isLoading={loading}
                                 onPress={handleSubmit}
                                 className="flex-1 h-12 bg-primaryBlue hover:bg-blue-700 text-white font-semibold text-sm"

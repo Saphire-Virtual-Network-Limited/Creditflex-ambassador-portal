@@ -1,3 +1,5 @@
+"use client"
+
 import {
     Modal,
     ModalContent,
@@ -7,7 +9,7 @@ import {
 import cancelIcon from "@/public/assets/svgs/modal-cancel.svg";
 import Image from "next/image";
 
-export const ModalWrap = ({ isOpen, onClose, children, title, size }: { isOpen: boolean, onClose: () => void, children: React.ReactNode, title: string, size?: "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "full" }) => {
+export default function ModalWrap({ isOpen, onClose, children, title, size }: { isOpen: boolean, onClose: () => void, children: React.ReactNode, title: string, size?: "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "full" }) {
     return (
         <Modal
             isOpen={isOpen}
@@ -16,8 +18,8 @@ export const ModalWrap = ({ isOpen, onClose, children, title, size }: { isOpen: 
             hideCloseButton
             scrollBehavior="inside"
             classNames={{
-                backdrop: "bg-black/60 backdrop-blur-sm fixed inset-0 z-40",
-                base: "bg-white rounded-lg shadow-xl z-50",
+                backdrop: "bg-black/60 backdrop-blur-sm fixed inset-0 z-60",
+                base: "bg-white rounded-lg shadow-xl z-70",
                 body: "py-6",
             }}
         >

@@ -1,8 +1,8 @@
-// components/Header.tsx
 "use client"
 
-import { Menu, Bell, ChevronDown } from "lucide-react"
+import { Menu, Bell, ChevronDown, ChevronUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Avatar } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,11 +10,23 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
+import { useState } from "react"
+import avatarImage from "@/public/assets/images/avatar.jpg";
+
+
+
+
+
+
+
+
 interface HeaderProps {
   onMenuClick: () => void
 }
 
 const TopHeader = ({ onMenuClick }: HeaderProps) => {
+  const [open, setOpen] = useState(false)
+
   return (
     <header className="bg-white border-b border-gray-200 px-4 lg:px-8 py-4">
       <div className="flex items-center justify-between">
@@ -27,8 +39,8 @@ const TopHeader = ({ onMenuClick }: HeaderProps) => {
           >
             <Menu size={20} />
           </Button>
-          
         </div>
+       
 
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="sm" className="relative">
@@ -36,18 +48,22 @@ const TopHeader = ({ onMenuClick }: HeaderProps) => {
             <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
           </Button>
 
-          <DropdownMenu>
+          <Avatar src={avatarImage.src} name="Jane Doe" size="sm" />
+
+          <DropdownMenu onOpenChange={setOpen}>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-2">
+              <Button variant="ghost" className="flex items-center gap-2 focus:outline-none focus:ring-0 focus-visible:ring-0">
                 <span className="hidden sm:inline">Geraldine</span>
-                <ChevronDown size={16} />
+                {open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link href="/profile">Profile</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>Logout</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => console.log("Logging out...")}>
+                Logout
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
