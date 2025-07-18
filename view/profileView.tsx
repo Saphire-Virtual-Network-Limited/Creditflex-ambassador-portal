@@ -20,9 +20,13 @@ import avatar from "@/public/assets/images/avatar.jpg";
 import { ProfileDetailsWrap } from "@/components/reususables/custom-ui/profile-details-wrap";
 import Image from "next/image";
 import cancelIcon from "@/public/assets/svgs/modal-cancel.svg";
+import { FormField, SelectField } from "@/components/reususables";
+import { ModalWrap } from "@/components/reususables/custom-ui/modal-wrap";
 
 
 function UpdateBankDetailsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+    const [selectedBank, setSelectedBank] = useState("");
+
     const [formData, setFormData] = useState({
         leadName: "",
         pfaName: "",
@@ -35,6 +39,13 @@ function UpdateBankDetailsModal({ isOpen, onClose }: { isOpen: boolean; onClose:
         salaryAccount: "",
     })
 
+    const bankOptions = [
+        { label: "Access Bank", value: "access" },
+        { label: "GTBank", value: "gtbank" },
+        { label: "First Bank", value: "firstbank" },
+        { label: "Zenith Bank", value: "zenith" }
+      ];
+
     const handleInputChange = (field: string, value: string) => {
         setFormData((prev) => ({ ...prev, [field]: value }))
     }
@@ -46,144 +57,56 @@ function UpdateBankDetailsModal({ isOpen, onClose }: { isOpen: boolean; onClose:
     }
 
     return (
-        <Modal
-            isOpen={isOpen}
-            onClose={onClose}
-            size="4xl"
-            hideCloseButton
-            scrollBehavior="inside"
-            classNames={{
-                backdrop: "bg-black/60 backdrop-blur-sm fixed inset-0 z-40",
-                base: "bg-white max-h-[90vh] rounded-lg shadow-xl z-50",
-                body: "py-6",
-            }}
-        >
-            <ModalContent>
-                <ModalHeader className="flex items-center justify-between pb-4 border-b">
-                    <h2 className="text-base font-semibold text-primaryBlue">Update Bank Details</h2>
-                    <span>
-                        <Image onClick={onClose} src={cancelIcon} alt="cancel" />
-                    </span>
-                </ModalHeader>
-                <ModalBody>
-                    <div className="space-y-6">
-                        {/* Row 1 */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <Input
-                                label="Lead Name"
-                                placeholder="Enter Lead's Full Name"
-                                value={formData.leadName}
-                                onValueChange={(value) => handleInputChange("leadName", value)}
-                                variant="bordered"
-                            />
-                            <Input
-                                label="PFA Name"
-                                placeholder="PFA Name"
-                                value={formData.pfaName}
-                                onValueChange={(value) => handleInputChange("pfaName", value)}
-                                variant="bordered"
-                            />
-                        </div>
+        <ModalWrap isOpen={isOpen} onClose={onClose} title="Update Bank Details">
+            <div className="space-y-6">
+                <div>
+                    <SelectField
+                        label="Bank Name"
+                        htmlFor="bankName"
+                        id="bankName"
+                        isInvalid={false}
+                        errorMessage=""
+                        placeholder="Select Bank"
+                        options={bankOptions}
+                        onChange={(value) => setSelectedBank(value as string)}
+                        selectionMode="single"
+                    />
+                </div>
+                <div>
+                    <FormField
+                        label="Account Number"
+                        htmlFor="accountNumber"
+                        type="text"
+                        id="accountNumber"
+                        placeholder="Enter Account Number"
+                        size="lg"
+                    />
+                </div>
+                <div>
+                    <FormField
+                        label="Account Name"
+                        htmlFor="accountName"
+                        type="text"
+                        id="accountName"
+                        placeholder="Enter Account Name"
+                        size="lg"
+                    />
+                </div>
+                {/* Submit Button */}
+                <Button className="bg-primaryBlue rounded-lg w-full mt-6 text-sm text-white" size="lg" onPress={handleSubmit}>
+                    Update
+                </Button>
+            </div>
+        </ModalWrap>
 
-                        {/* Row 2 */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <Input
-                                label="IPPIS Number"
-                                placeholder="Enter IPPIS Number"
-                                value={formData.ippis}
-                                onValueChange={(value) => handleInputChange("ippis", value)}
-                                variant="bordered"
-                            />
-                            <Input
-                                label="Phone Number"
-                                placeholder="Enter Phone Number"
-                                value={formData.phoneNumber}
-                                onValueChange={(value) => handleInputChange("phoneNumber", value)}
-                                variant="bordered"
-                            />
-                        </div>
 
-                        {/* Row 3 */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <Input
-                                label="BVN"
-                                placeholder="Enter BVN"
-                                value={formData.bvn}
-                                onValueChange={(value) => handleInputChange("bvn", value)}
-                                variant="bordered"
-                            />
-                            <Input
-                                label="Date Of Birth"
-                                placeholder="Pick Date of Birth"
-                                type="date"
-                                value={formData.dateOfBirth}
-                                onValueChange={(value) => handleInputChange("dateOfBirth", value)}
-                                variant="bordered"
-                            />
-                        </div>
 
-                        {/* Row 4 */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <Input
-                                label="Grade Level"
-                                placeholder="Enter Grade Level"
-                                value={formData.gradeLevel}
-                                onValueChange={(value) => handleInputChange("gradeLevel", value)}
-                                variant="bordered"
-                            />
-                            <Select
-                                label="State"
-                                placeholder="Select State"
-                                selectedKeys={formData.state ? [formData.state] : []}
-                                onSelectionChange={(keys) => {
-                                    const value = Array.from(keys)[0] as string
-                                    handleInputChange("state", value || "")
-                                }}
-                                variant="bordered"
-                            >
-                                <SelectItem key="lagos" value="lagos">
-                                    Lagos
-                                </SelectItem>
-                                <SelectItem key="abuja" value="abuja">
-                                    Abuja
-                                </SelectItem>
-                                <SelectItem key="kano" value="kano">
-                                    Kano
-                                </SelectItem>
-                                <SelectItem key="rivers" value="rivers">
-                                    Rivers
-                                </SelectItem>
-                                <SelectItem key="ogun" value="ogun">
-                                    Ogun
-                                </SelectItem>
-                                <SelectItem key="kaduna" value="kaduna">
-                                    Kaduna
-                                </SelectItem>
-                            </Select>
-                        </div>
-
-                        {/* Row 5 */}
-                        <Input
-                            label="Salary Account Number"
-                            placeholder="Enter Salary Account Number"
-                            value={formData.salaryAccount}
-                            onValueChange={(value) => handleInputChange("salaryAccount", value)}
-                            variant="bordered"
-                        />
-
-                        {/* Submit Button */}
-                        <Button color="primary" size="lg" className="w-full mt-6" onPress={handleSubmit}>
-                            Onboard
-                        </Button>
-                    </div>
-                </ModalBody>
-            </ModalContent>
-        </Modal>
     )
 }
 
 const ProfileView = () => {
-    const { isOpen, onOpen, onClose } = useDisclosure()
+    const { isOpen, onOpen, onClose } = useDisclosure();
+
     return (
         <>
             <div className="max-w-4xl mx-auto">
