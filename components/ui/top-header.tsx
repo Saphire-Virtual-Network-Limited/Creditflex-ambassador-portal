@@ -27,21 +27,13 @@ const TopHeader = ({ onMenuClick }: HeaderProps) => {
           >
             <Menu size={20} />
           </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Hello, Geraldine</h1>
-            <p className="text-gray-600">How are you doing today?</p>
-          </div>
+          
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="hidden md:block text-right">
-            <p className="text-sm text-gray-600">Telesales Agent Assigned To:</p>
-            <p className="font-semibold text-blue-600">Abimbola Jinadu</p>
-          </div>
-
           <Button variant="ghost" size="sm" className="relative">
             <Bell size={20} />
-            <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
           </Button>
 
           <DropdownMenu>
@@ -53,7 +45,6 @@ const TopHeader = ({ onMenuClick }: HeaderProps) => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
               <DropdownMenuItem>Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
