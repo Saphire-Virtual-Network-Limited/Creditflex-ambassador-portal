@@ -11,7 +11,7 @@ export default function AdminDashView() {
                 </div>
                 <div className="">
                     <p className="text-sm font-medium text-lightBrown">Telesales Agent Assigned To:</p>
-                    <p className="font-semibold text-blue-600">Abimbola Jinadu</p>
+                    <p className="font-semibold text-blue-600">Abimbola Jinadus</p>
                 </div>
             </div>
 
