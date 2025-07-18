@@ -95,7 +95,7 @@ export default function SigninView() {
 
                             <Button
                                 type="button"
-                                onClick={() => router.push("/")}
+                                onClick={() => router.push("/admin-dashboard")}
                                 className="flex-1 h-12 bg-primaryBlue hover:bg-blue-700 text-white font-semibold text-sm"
                             >
                                 Continue

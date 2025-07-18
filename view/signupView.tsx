@@ -282,7 +282,7 @@ export default function SignupView() {
 
               <Button
                 type="button"
-                onClick={currentStep === 3 ? () => router.push("/") : nextStep}
+                onClick={currentStep === 3 ? () => router.push("/admin-dashboard") : nextStep}
                 className="flex-1 h-12 bg-primaryBlue hover:bg-blue-700 text-white font-semibold text-sm"
               >
                 {currentStep === 3 ? "Create Account" : "Continue"}
