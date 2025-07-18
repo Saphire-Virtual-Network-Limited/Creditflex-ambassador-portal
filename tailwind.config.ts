@@ -75,6 +75,10 @@ export default {
 					"4": "hsl(var(--chart-4))",
 					"5": "hsl(var(--chart-5))",
 				},
+				primaryBlue: "#0F52BA",
+				lightBrown: "#3A3A3A",
+				lightGray: "#D2D2D2",
+				
 			},
 			borderRadius: {
 				lg: "var(--radius)",
