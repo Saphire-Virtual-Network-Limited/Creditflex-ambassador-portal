@@ -1,6 +1,6 @@
 "use client"
 
-import { CardWrapper } from "@/components/reususables/card/card-wrapper"
+import { InfoCard } from "@/components/reususables/card/info-card"
 import { DataTable, type Column } from "@/components/reususables/custom-ui/table"
 import multipleUser from "@/public/assets/svgs/multiple-user-filled.svg"
 import { Button, Card, CardBody } from "@heroui/react"
@@ -148,7 +148,7 @@ export default function AdminDashView() {
             key: "status",
             header: "Status",
             render: (value: string) => (
-                <span className={value === "Approved" ? "text-green-600 font-medium" : "text-red-600 font-medium"}>
+                <span className={value === "Approved" ? "text-[#1B7E02] font-medium" : "text-[#FF0000] font-medium"}>
                     {value}
                 </span>
             ),
@@ -169,9 +169,9 @@ export default function AdminDashView() {
                 </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <CardWrapper cardIcon={multipleUser} cardTitle="Total Leads Onboarded" cardValue={14} />
-                <CardWrapper cardIcon={multipleUser} cardTitle="Total approved leads" cardValue={10} />
-                <CardWrapper cardIcon={multipleUser} cardTitle="Total commission earned" cardValue={120000} currencyFormat={true} />
+                <InfoCard cardIcon={multipleUser} cardTitle="Total Leads Onboarded" cardValue={14} />
+                <InfoCard cardIcon={multipleUser} cardTitle="Total approved leads" cardValue={10} />
+                <InfoCard cardIcon={multipleUser} cardTitle="Total commission earned" cardValue={120000} currencyFormat={true} />
             </div>
 
             <Card className="bg-white border border-darkCharcoal/20 rounded-lg">

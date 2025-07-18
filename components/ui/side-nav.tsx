@@ -7,9 +7,9 @@ import { X, Users, Crown } from "lucide-react"
 import brandLogo from "@/public/assets/svgs/brand-logo.svg"
 
 const navigationItems = [
-  { name: "Dashboard", href: "/dashboard", icon: "grid" },
-  { name: "Leads", href: "/leads", icon: "users" },
-  { name: "Commissions", href: "/commissions", icon: "crown" },
+  { name: "Dashboard", href: "/admin-dashboard", icon: "grid" },
+  { name: "Leads", href: "/admin-leads", icon: "users" },
+  { name: "Commissions", href: "/admin-commissions", icon: "crown" },
 ]
 
 interface SidebarProps {

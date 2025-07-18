@@ -68,7 +68,7 @@ export function DataTable({
           <thead>
             <tr className="border-b border-gray-200">
               {columns.map((column) => (
-                <th key={column.key} className={`text-left py-3 px-4 font-medium text-gray-700 ${column.width || ""}`}>
+                <th key={column.key} className={`text-left py-3 px-4 font-semibold text-xs text-lightBrown ${column.width || ""}`}>
                   {column.header}
                 </th>
               ))}
@@ -78,7 +78,7 @@ export function DataTable({
             {data.map((row, index) => (
               <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
                 {columns.map((column) => (
-                  <td key={column.key} className="py-3 px-4 text-gray-900">
+                  <td key={column.key} className="py-3 px-4 text-darkCharcoal text-xs font-medium">
                     {column.render ? column.render(row[column.key], row) : row[column.key]}
                   </td>
                 ))}
