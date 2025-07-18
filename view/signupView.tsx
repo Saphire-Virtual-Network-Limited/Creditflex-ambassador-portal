@@ -2,18 +2,21 @@
 
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-// import { Input } from "@/components/reususables/form/formField"
-import { Label } from "@/components/ui/label"
-import { Eye, EyeOff } from "lucide-react"
 import { useState } from "react"
 import signupIllus from "@/public/assets/svgs/signupIllus.svg"
-import brandLogo from "@/public/assets/svgs/brand-logo.svg"
+import brandLogo from "@/public/assets/images/brand-logo.png"
 import { FormField, SelectField } from "@/components/reususables";
 import backArrow from "@/public/assets/svgs/back-arrow.svg"
+import { useRouter } from "next/navigation";
+
+
+
+
 
 export default function SignupView() {
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedBank, setSelectedBank] = useState("");
+  const router = useRouter();
 
   const bankOptions = [
     { label: "Access Bank", value: "access" },
@@ -33,33 +36,6 @@ export default function SignupView() {
       setCurrentStep(currentStep - 1)
     }
   }
-
-  // const getStepTitle = () => {
-  //   switch (currentStep) {
-  //     case 1:
-  //       return "Create an account"
-  //     case 2:
-  //       return "Personal Information"
-  //     case 3:
-  //       return "Final Details"
-  //     default:
-  //       return "Create an account"
-  //   }
-  // }
-
-  // const getStepDescription = () => {
-  //   switch (currentStep) {
-  //     case 1:
-  //       return "Complete the sign up process to get started"
-  //     case 2:
-  //       return "Please provide your personal details"
-  //     case 3:
-  //       return "Review and complete your registration"
-  //     default:
-  //       return "Complete the sign up process to get started"
-  //   }
-  // }
-
 
 
   const renderStep1 = () => (
@@ -181,6 +157,7 @@ export default function SignupView() {
           placeholder="Enter your home address"
           required
           size="lg"
+          reqValue="*"
         />
       </div>
       <div>
@@ -190,7 +167,7 @@ export default function SignupView() {
           id="institution"
           isInvalid={false}
           errorMessage=""
-          placeholder="institution/company"
+          placeholder="Institution/Company"
           options={[]}
           onChange={() => { }}
           selectionMode="single"
@@ -199,12 +176,25 @@ export default function SignupView() {
       <div>
         <FormField
           label="IPPIS Number"
-          htmlFor="address"
+          htmlFor="ippis"
           type="text"
-          id="address"
-          placeholder="Enter your home address"
+          id="ippis"
+          placeholder="Enter your IPPIS number"
           required
           size="lg"
+        />
+      </div>
+      <div>
+        <SelectField
+          label="Choose Assigned Telesales Agent"
+          htmlFor="telesalesAgent"
+          id="telesalesAgent"
+          isInvalid={false}
+          errorMessage=""
+          placeholder="Choose assigned Telesales Agent"
+          options={[]}
+          onChange={() => { }}
+          selectionMode="single"
         />
       </div>
     </div>
@@ -225,7 +215,7 @@ export default function SignupView() {
 
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row w-full">
+    <div className="flex flex-col lg:flex-row h-auto lg:h-screen w-full lg:overflow-hidden">
       {/* Left Section - Hero Content */}
       <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white flex-1 flex flex-col justify-between relative overflow-hidden lg:max-w-[35%]">
         <div className="relative z-10 mt-5 p-8 lg:p-12">
@@ -254,8 +244,9 @@ export default function SignupView() {
       </div>
 
       {/* Right Section - Sign Up Form */}
-      <div className="bg-white p-8  flex-1 flex flex-col justify-center max-w-[65%] lg:max-w-none mx-auto lg:mx-0 w-full">
-        <div className="w-full max-w-md mx-auto mt-10">
+      <div className="bg-white p-8 lg:p-14 flex-1 lg:overflow-y-auto lg:h-screen flex flex-col lg:max-w-none mx-auto lg:mx-0 w-full">
+
+        <div className="w-full max-w-md mx-auto pt-10 pb-10">
           {/* Logo */}
           <div className="mb-8 flex justify-center items-center text-center lg:text-right">
             <Image src={brandLogo} alt="Sapphire Credit Logo" width={150} height={100} />
@@ -291,18 +282,18 @@ export default function SignupView() {
 
               <Button
                 type="button"
-                onClick={currentStep === 3 ? () => alert("Form submitted!") : nextStep}
-                className="flex-1 h-12 bg-primaryBlue hover:bg-blue-700 text-white font-medium text-lg"
+                onClick={currentStep === 3 ? () => router.push("/") : nextStep}
+                className="flex-1 h-12 bg-primaryBlue hover:bg-blue-700 text-white font-semibold text-sm"
               >
-                {currentStep === 3 ? "Complete Registration" : "Continue"}
+                {currentStep === 3 ? "Create Account" : "Continue"}
               </Button>
             </div>
 
 
-            <div className="text-center">
-              <p className="text-gray-600">
+            <div className="text-center ">
+              <p className="text-darkCharcoal">
                 Already have an account?{" "}
-                <a href="#" className="text-primaryBlue hover:text-blue-700 font-semibold">
+                <a href="/sign-in" className="text-primaryBlue hover:text-blue-700 font-semibold">
                   Login
                 </a>
               </p>

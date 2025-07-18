@@ -78,6 +78,7 @@ export default {
 				primaryBlue: "#0F52BA",
 				lightBrown: "#3A3A3A",
 				lightGray: "#D2D2D2",
+				darkCharcoal: "#333333",
 				
 			},
 			borderRadius: {
