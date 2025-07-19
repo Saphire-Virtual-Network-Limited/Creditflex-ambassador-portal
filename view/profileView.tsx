@@ -150,9 +150,9 @@ const ProfileView = () => {
                         <div className="pt-6">
                             {/* Bank Details */}
                             <div className="mb-8">
-                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+                                <div className="flex items-center justify-between mb-6">
                                     <h2 className="text-sm font-semibold text-primaryBlue">Bank Details</h2>
-                                    <Button className="bg-primaryBlue rounded-lg  text-sm text-white" size="sm" onPress={onOpen}>
+                                    <Button className="bg-primaryBlue rounded-lg text-sm text-white" size="sm" onPress={onOpen}>
                                         Update bank details
                                     </Button>
                                 </div>
@@ -165,7 +165,7 @@ const ProfileView = () => {
                         </div>
                         {/* Referral Information */}
                         <div className="pt-6">
-                            <div className="flex justify-between">
+                            <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between">
                                 <div>
                                     <ProfileDetailsWrap label="Referral/Invite link" value="sapphirecreditpaydayloan/amb/geraldine10293" />
                                 </div>

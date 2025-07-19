@@ -158,7 +158,7 @@ export default function AdminDashView() {
 
     return (
         <div className="flex flex-col gap-10">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col gap-4 md:flex-row md:gap-0 justify-between md:items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-lightBrown">Hello, Geraldine</h1>
                     <p className="text-lightBrown">How are you doing today?</p>
