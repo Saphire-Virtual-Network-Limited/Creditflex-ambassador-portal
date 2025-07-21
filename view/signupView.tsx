@@ -309,7 +309,7 @@ export default function SignupView() {
             <div className="flex gap-4">
               <Button
                 isLoading={loading}
-                spinner
+                spinner={loading}
                 type="button"
                 onPress={handleSubmit}
                 className="flex-1 h-12 bg-primaryBlue hover:bg-blue-700 text-white font-semibold text-sm rounded-lg"

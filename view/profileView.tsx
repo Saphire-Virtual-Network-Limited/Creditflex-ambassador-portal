@@ -1,7 +1,7 @@
 "use client";
 
 
-import React from "react";
+import React, { useRef, useState } from "react";
 import {
     Button,
     useDisclosure,
@@ -9,7 +9,7 @@ import {
 import { CardWrapper } from "@/components/reususables/card/card-wrapper";
 import avatarImage from "@/public/assets/images/avatar.jpg";
 import ProfileDetailsWrap from "@/components/reususables/custom-ui/profile-details-wrap";
-import { FormField, SelectField } from "@/components/reususables";
+import { FormField, InputFile, SelectField } from "@/components/reususables";
 import ModalWrap from "@/components/reususables/custom-ui/modal-wrap";
 import { Avatar } from "@/components/ui/avatar";
 
@@ -46,7 +46,7 @@ function UpdateBankDetailsModal({ isOpen, onClose }: { isOpen: boolean; onClose:
     }
 
     return (
-        <ModalWrap isOpen={isOpen} onClose={onClose} title="Update Bank Details">
+        <ModalWrap size="lg" isOpen={isOpen} onClose={onClose} title="Update Bank Details">
             <div className="space-y-6">
                 <div>
                     <SelectField
@@ -92,6 +92,27 @@ function UpdateBankDetailsModal({ isOpen, onClose }: { isOpen: boolean; onClose:
 
 const ProfileView = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const [avatarUrl, setAvatarUrl] = useState<string>("/assets/images/avatar.jpg");
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (file && file.size < 5 * 1024 * 1024) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          if (typeof reader.result === "string") {
+            setAvatarUrl(reader.result);
+          }
+        };
+        reader.readAsDataURL(file);
+      } else {
+        alert("Please upload an image under 5MB.");
+      }
+    };
+  
+    const triggerFileInput = () => {
+      fileInputRef.current?.click();
+    };
 
     return (
         <>
@@ -108,12 +129,22 @@ const ProfileView = () => {
 
                                 {/* Profile Photo Section */}
                                 <div className="flex flex-col sm:flex-row items-start gap-6 mb-8">
-                                    <Avatar src={avatarImage.src} name="Jane Doe" size="lg" />
+                                    <Avatar src={avatarUrl} name="Jane Doe" size="lg" />
                                     <div className="flex-1">
-                                        <Button className="bg-primaryBlue rounded-lg  text-sm text-white" size="sm">
+                                        <Button
+                                            className="bg-primaryBlue rounded-lg text-sm text-white"
+                                            size="sm"
+                                            onPress={triggerFileInput}
+                                        >
                                             Upload new photo
                                         </Button>
-                                        <p className="text-xs text-lightBrown/50 font-medium mt-3">PNG, JPG, JPEG under 5MB</p>
+                                        <input
+                                            type="file"
+                                            accept="image/png, image/jpg, image/jpeg"
+                                            ref={fileInputRef}
+                                            onChange={handleFileChange}
+                                            className="hidden"
+                                        />
                                     </div>
                                 </div>
 

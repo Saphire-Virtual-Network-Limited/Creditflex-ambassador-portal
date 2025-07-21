@@ -1,18 +1,87 @@
-"use client"
+"use client";
 
-import { StatusDropdown } from "@/components/reususables/custom-ui/dropdown"
-import { DataTable, type Column } from "@/components/reususables/custom-ui/table"
-import { SearchForm } from "@/components/reususables/form/searchForm"
-import { Button, Card, CardBody } from "@heroui/react"
-import { useState } from "react"
+import { FormField, ModalWrap, SelectField } from "@/components/reususables";
+import { StatusDropdown } from "@/components/reususables/custom-ui/dropdown";
+import { DataTable, type Column } from "@/components/reususables/custom-ui/table";
+import { SearchForm } from "@/components/reususables/form/searchForm";
+import { Button, Card, CardBody, useDisclosure } from "@heroui/react";
+import { useState } from "react";
 
+// Onboard Modal
+function OnboardModal({ isOpen, onClose, onSuccess }: { isOpen: boolean; onClose: () => void; onSuccess: () => void }) {
+    const stateOptions = [
+        { label: "Lagos", value: "lagos" },
+        { label: "Ibadan", value: "ibadan" },
+    ];
 
+    const handleSubmit = () => {
+        onClose();
+        onSuccess();
+    };
+
+    return (
+        <ModalWrap size="4xl" isOpen={isOpen} onClose={onClose} title="Update Bank Details">
+            <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField label="Lead Name" htmlFor="leadName" type="text" id="leadName" placeholder="Enter Lead's Full Name" size="lg" />
+                    <FormField label="PFA Name" htmlFor="pfaName" type="text" id="pfaName" placeholder="Enter PFA Name" size="lg" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField label="IPPIS Number" htmlFor="ippis" type="text" id="ippis" placeholder="Enter IPPIS Number" size="lg" />
+                    <FormField label="Phone Number" htmlFor="phoneNumber" type="text" id="phoneNumber" placeholder="Enter Phone Number" size="lg" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField label="BVN" htmlFor="bvn" type="text" id="bvn" placeholder="Enter BVN" size="lg" />
+                    <FormField label="Date Of Birth" htmlFor="dateOfBirth" type="date" id="dateOfBirth" placeholder="Pick Date of Birth" size="lg" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField label="Grade Level" htmlFor="gradeLevel" type="text" id="gradeLevel" placeholder="Enter Grade Level" size="lg" />
+                    <SelectField
+                        label="State"
+                        htmlFor="state"
+                        id="state"
+                        isInvalid={false}
+                        errorMessage=""
+                        placeholder="Select State"
+                        options={stateOptions}
+                        onChange={(value) => (value as string)}
+                        selectionMode="single"
+                    />
+                </div>
+                <FormField label="Salary Account Number" htmlFor="salaryAccount" type="text" id="salaryAccount" placeholder="Enter Salary Account Number" size="lg" />
+                <Button className="bg-primaryBlue rounded-lg w-full mt-6 text-sm text-white" size="lg" onPress={handleSubmit}>
+                    Onboard
+                </Button>
+            </div>
+        </ModalWrap>
+    );
+}
+
+// Success Modal
+function SuccessModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+    return (
+        <ModalWrap isOpen={isOpen} onClose={onClose} title="Success">
+            <div className="text-center space-y-4 py-6">
+                <p className="text-lg font-semibold text-green-600">Lead onboarded successfully!</p>
+                <Button onPress={onClose} className="bg-primaryBlue text-white">
+                    Close
+                </Button>
+            </div>
+        </ModalWrap>
+    );
+}
+
+// Main Component
 export default function AdminLeadsView() {
-    const [currentPage, setCurrentPage] = useState(1)
-    const [pageSize, setPageSize] = useState(9)
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(9);
     const [searchValue, setSearchValue] = useState("");
     const [status, setStatus] = useState("Select Status");
+    const { isOpen, onOpen, onClose } = useDisclosure(); // onboard modal
+    const [showSuccess, setShowSuccess] = useState(false); // success modal
 
+    const handleSuccess = () => setShowSuccess(true);
+    const closeSuccess = () => setShowSuccess(false);
 
     const leadData = [
         {
@@ -30,112 +99,52 @@ export default function AdminLeadsView() {
         },
         {
             id: 2,
-            leadName: "John Benson",
-            pfaName: "John Benson",
-            ippis: "291029",
-            bvn: "21039581029",
-            dob: "01-04-1968",
+            leadName: "Alice Smith",
+            pfaName: "Alice Smith",
+            ippis: "123456",
+            bvn: "1122334455",
+            dob: "12-12-1975",
             gradeLevel: "Level 8",
             state: "Ondo",
             salaryAccount: "0193949402",
-            phone: "08119934838",
+            phone: "08011223344",
             status: "Approved",
         },
         {
             id: 3,
-            leadName: "John Benson",
-            pfaName: "John Benson",
-            ippis: "291029",
-            bvn: "21039581029",
-            dob: "01-04-1968",
-            gradeLevel: "Level 8",
+            leadName: "Michael Adams",
+            pfaName: "Michael Adams",
+            ippis: "789101",
+            bvn: "5566778899",
+            dob: "05-09-1970",
+            gradeLevel: "Level 10",
             state: "Abuja",
             salaryAccount: "0193949402",
-            phone: "08119934838",
+            phone: "08122334455",
             status: "Approved",
         },
-        {
-            id: 4,
-            leadName: "John Benson",
-            pfaName: "John Benson",
-            ippis: "291029",
-            bvn: "21039581029",
-            dob: "01-04-1968",
-            gradeLevel: "Level 8",
-            state: "Kogi",
-            salaryAccount: "0193949402",
-            phone: "08119934838",
-            status: "Approved",
-        },
-        {
-            id: 5,
-            leadName: "John Benson",
-            pfaName: "John Benson",
-            ippis: "291029",
-            bvn: "21039581029",
-            dob: "01-04-1968",
-            gradeLevel: "Level 8",
-            state: "Kwara",
-            salaryAccount: "0193949402",
-            phone: "08119934838",
-            status: "Approved",
-        },
-        {
-            id: 6,
-            leadName: "John Benson",
-            pfaName: "John Benson",
-            ippis: "291029",
-            bvn: "21039581029",
-            dob: "01-04-1968",
-            gradeLevel: "Level 10",
-            state: "Lagos",
-            salaryAccount: "0193949402",
-            phone: "08119934838",
-            status: "Approved",
-        },
-        {
-            id: 7,
-            leadName: "John Benson",
-            pfaName: "John Benson",
-            ippis: "291029",
-            bvn: "21039581029",
-            dob: "01-04-1968",
-            gradeLevel: "Level 6",
-            state: "Oyo",
-            salaryAccount: "0193949402",
-            phone: "08119934838",
-            status: "Approved",
-        },
-        {
-            id: 8,
-            leadName: "John Benson",
-            pfaName: "John Benson",
-            ippis: "291029",
-            bvn: "21039581029",
-            dob: "01-04-1968",
-            gradeLevel: "Level 10",
-            state: "Ekiti",
-            salaryAccount: "0193949402",
-            phone: "08119934838",
-            status: "Approved",
-        },
-        {
-            id: 9,
-            leadName: "John Benson",
-            pfaName: "John Benson",
-            ippis: "291029",
-            bvn: "21039581029",
-            dob: "01-04-1968",
-            gradeLevel: "Level 10",
-            state: "Kebbi",
-            salaryAccount: "0193949402",
-            phone: "08119934838",
-            status: "Declined",
-        },
-    ]
+    ];
 
+    // Filter based on search input
+    const filteredData = leadData.filter((lead) => {
+        const searchTerm = searchValue.toLowerCase();
 
-    // Define columns for dashboard lead history
+        const matchesSearch =
+            lead.leadName.toLowerCase().includes(searchTerm) ||
+            lead.pfaName.toLowerCase().includes(searchTerm) ||
+            lead.ippis.toLowerCase().includes(searchTerm) ||
+            lead.bvn.toLowerCase().includes(searchTerm) ||
+            lead.phone.toLowerCase().includes(searchTerm) ||
+            lead.state.toLowerCase().includes(searchTerm) ||
+            lead.gradeLevel.toLowerCase().includes(searchTerm) ||
+            lead.salaryAccount.toLowerCase().includes(searchTerm);
+
+        const matchesStatus =
+            status === "Select Status" || lead.status.toLowerCase() === status.toLowerCase();
+
+        return matchesSearch && matchesStatus;
+    });
+
     const dashboardLeadColumns: Column[] = [
         { key: "id", header: "S/N", width: "w-12" },
         { key: "leadName", header: "Lead Name" },
@@ -156,24 +165,20 @@ export default function AdminLeadsView() {
                 </span>
             ),
         },
-    ]
-
+    ];
 
     const statuses = ["Select Status", "Approved", "Declined"];
-
-
 
     return (
         <div className="flex flex-col gap-10">
             <div className="flex flex-col gap-4 md:flex-row md:gap-0 justify-between md:items-center">
-                <div>
-                    <h1 className="text-2xl font-bold text-lightBrown">Leads</h1>
-                </div>
-                <div className="">
-                    <Button className="bg-primaryBlue px-8 rounded-md text-white">Onboard a Lead</Button>
-                </div>
+                <h1 className="text-2xl font-bold text-lightBrown">Leads</h1>
+                <Button onPress={onOpen} className="bg-primaryBlue px-8 rounded-md text-white">
+                    Onboard a Lead
+                </Button>
             </div>
-            <div className="flex gap-4 items-center p-4">
+
+            <div className="flex flex-col md:flex-row gap-4 items-center p-4">
                 <SearchForm value={searchValue} onChange={setSearchValue} />
                 <StatusDropdown optionArray={statuses} selected={status} onChange={setStatus} />
             </div>
@@ -181,9 +186,9 @@ export default function AdminLeadsView() {
             <Card className="bg-white border border-darkCharcoal/20 rounded-lg">
                 <CardBody className="p-6">
                     <DataTable
-                        data={leadData.slice(0, pageSize)}
+                        data={filteredData.slice((currentPage - 1) * pageSize, currentPage * pageSize)}
                         columns={dashboardLeadColumns}
-                        totalItems={leadData.length}
+                        totalItems={filteredData.length}
                         currentPage={currentPage}
                         pageSize={pageSize}
                         onPageChange={setCurrentPage}
@@ -192,6 +197,8 @@ export default function AdminLeadsView() {
                 </CardBody>
             </Card>
 
+            <OnboardModal isOpen={isOpen} onClose={onClose} onSuccess={handleSuccess} />
+            <SuccessModal isOpen={showSuccess} onClose={closeSuccess} />
         </div>
-    )
+    );
 }

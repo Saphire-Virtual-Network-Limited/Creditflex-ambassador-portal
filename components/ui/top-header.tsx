@@ -9,10 +9,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import Link from "next/link"
 import { useState } from "react"
 import avatarImage from "@/public/assets/images/avatar.jpg";
-
+import { useRouter } from "next/navigation";
 
 
 
@@ -25,7 +24,8 @@ interface HeaderProps {
 }
 
 const TopHeader = ({ onMenuClick }: HeaderProps) => {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
+  const router = useRouter();
 
   return (
     <header className="bg-white border-b border-gray-200 px-4 lg:px-8 py-4">
@@ -59,7 +59,7 @@ const TopHeader = ({ onMenuClick }: HeaderProps) => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
-                <Link href="/profile">Profile</Link>
+                <Button onClick={() => router.push("/profile")} variant="ghost" className="w-full justify-start">Profile</Button>
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => console.log("Logging out...")}>
                 Logout
