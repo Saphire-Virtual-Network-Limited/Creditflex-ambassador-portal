@@ -36,9 +36,9 @@ function UpdateBankDetailsModal({ isOpen, onClose }: { isOpen: boolean; onClose:
         { label: "Zenith Bank", value: "zenith" }
     ];
 
-    const handleInputChange = (field: string, value: string) => {
-        setFormData((prev) => ({ ...prev, [field]: value }))
-    }
+    // const handleInputChange = (field: string, value: string) => {
+    //     setFormData((prev) => ({ ...prev, [field]: value }))
+    // }
 
     const handleSubmit = () => {
         // Handle form submission
