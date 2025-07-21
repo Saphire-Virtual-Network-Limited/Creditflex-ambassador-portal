@@ -1,4 +1,5 @@
+import { ProfileView } from "@/view";
 
 export default function Profile() {
-  return "HelloWorld"
+  return <ProfileView />
 }

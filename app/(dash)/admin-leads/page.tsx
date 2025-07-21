@@ -1,7 +1,6 @@
+import { AdminLeadsView } from '@/view'
 import React from 'react'
 
 export default function AdminLeads() {
-  return (
-    <div>AdminLeads</div>
-  )
+    return <AdminLeadsView />
 }

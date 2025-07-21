@@ -6,7 +6,7 @@ import { Select, SelectItem, Selection } from "@heroui/react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 interface SelectFieldProps {
-	label: string;
+	label?: string;
 	htmlFor: string;
 	id: string;
 	isInvalid: boolean;
@@ -29,7 +29,7 @@ const SelectField: React.FC<SelectFieldProps> = ({ label, htmlFor, id, isInvalid
 
 
 	return (
-		<div className="flex  flex-col space-y-1.5">
+		<div className="flex flex-col space-y-1.5">
 			<Label
 				htmlFor={htmlFor}
 				className={cn("mb-2 text-base font-medium text-lightBrown", GeneralSans_Meduim.className)}>
