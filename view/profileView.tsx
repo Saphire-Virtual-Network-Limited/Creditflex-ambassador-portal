@@ -87,9 +87,6 @@ function UpdateBankDetailsModal({ isOpen, onClose }: { isOpen: boolean; onClose:
                 </Button>
             </div>
         </ModalWrap>
-
-
-
     )
 }
 
