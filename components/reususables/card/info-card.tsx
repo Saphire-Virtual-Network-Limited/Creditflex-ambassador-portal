@@ -1,5 +1,4 @@
 import React from "react";
-import { Card, CardBody } from "@heroui/react"
 import Image from "next/image";
 import { CardWrapper } from "./card-wrapper";
 
