@@ -9,21 +9,53 @@ import backArrow from "@/public/assets/svgs/back-arrow.svg"
 import { useRouter } from "next/navigation";
 import { Button } from "@heroui/react";
 import { ArrowDown } from "lucide-react"
-
-
-
+import { signupStepOne, signupStepTwo, signupStepThree } from "@/lib/api";
+import { signupStep1Schema, signupStep2Schema, signupStep3Schema, validateForm } from "@/lib/validations";
+import { toast } from "sonner";
 
 export default function SignupView() {
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false);
   const nextSectionRef = useRef<HTMLDivElement>(null);
-
   const router = useRouter();
 
-    // SCROLL TO NEXT SECTION FOR MOBILE
-    const handleScroll = () => {
-      nextSectionRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
+  // Form state for all steps
+  const [formData, setFormData] = useState({
+    // Step 1
+    email: "",
+    phoneNumber: "",
+    password: "",
+    confirmPassword: "",
+    referralCode: "",
+    // Step 2
+    accountNumber: "",
+    bankName: "",
+    accountName: "",
+    bvn: "",
+    // Step 3
+    address: "",
+    institution: "",
+    ippis: "",
+    telesalesAgent: "",
+  });
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Handle form field changes
+  const handleChange = (field: string, value: string) => {
+    // For phone number, only allow digits
+    if (field === "phoneNumber") {
+      const numericValue = value.replace(/\D/g, '');
+      setFormData(prev => ({ ...prev, [field]: numericValue }));
+    } else {
+      setFormData(prev => ({ ...prev, [field]: value }));
+    }
+  };
+
+  // SCROLL TO NEXT SECTION FOR MOBILE
+  const handleScroll = () => {
+    nextSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   const bankOptions = [
     { label: "Access Bank", value: "access" },
@@ -44,21 +76,35 @@ export default function SignupView() {
     }
   }
 
-
   const renderStep1 = () => (
     <div className="space-y-6">
       <div>
         <FormField
-          label="Phone Number/Email Address"
-          htmlFor="contact"
+          label="Email Address"
+          htmlFor="email"
           type="text"
-          id="contact"
-          placeholder="Enter your Phone Number/Email Address"
-          required
+          id="email"
+          placeholder="Enter your Email Address"
           size="lg"
-          reqValue="*"
+          value={formData.email}
+          onChange={(value: string) => handleChange("email", value)}
+          isInvalid={!!errors.email}
+          errorMessage={errors.email}
         />
-
+      </div>
+      <div>
+        <FormField
+          label="Phone Number"
+          htmlFor="phoneNumber"
+          type="tel"
+          id="phoneNumber"
+          placeholder="Enter your Phone Number (numbers only)"
+          size="lg"
+          value={formData.phoneNumber}
+          onChange={(value: string) => handleChange("phoneNumber", value)}
+          isInvalid={!!errors.phone}
+          errorMessage={errors.phone}
+        />
       </div>
 
       <div>
@@ -71,6 +117,10 @@ export default function SignupView() {
           required
           size="lg"
           reqValue="*"
+          value={formData.password}
+          onChange={(value: string) => handleChange("password", value)}
+          isInvalid={!!errors.password}
+          errorMessage={errors.password}
         />
       </div>
 
@@ -84,6 +134,10 @@ export default function SignupView() {
           required
           size="lg"
           reqValue="*"
+          value={formData.confirmPassword}
+          onChange={(value: string) => handleChange("confirmPassword", value)}
+          isInvalid={!!errors.confirmPassword}
+          errorMessage={errors.confirmPassword}
         />
       </div>
 
@@ -95,6 +149,10 @@ export default function SignupView() {
           id="referralCode"
           placeholder="Enter referral code"
           size="lg"
+          value={formData.referralCode}
+          onChange={(value: string) => handleChange("referralCode", value)}
+          isInvalid={!!errors.referredBy}
+          errorMessage={errors.referredBy}
         />
       </div>
     </div>
@@ -112,6 +170,10 @@ export default function SignupView() {
           required
           size="lg"
           reqValue="*"
+          value={formData.accountNumber}
+          onChange={(value: string) => handleChange("accountNumber", value)}
+          isInvalid={!!errors.accountNumber}
+          errorMessage={errors.accountNumber}
         />
       </div>
       <div>
@@ -119,11 +181,11 @@ export default function SignupView() {
           label="Bank Name"
           htmlFor="bankName"
           id="bankName"
-          isInvalid={false}
-          errorMessage=""
+          isInvalid={!!errors.bankName}
+          errorMessage={errors.bankName}
           placeholder="Select Bank"
           options={bankOptions}
-          onChange={(value) => (value as string)}
+          onChange={(value) => handleChange("bankName", value as string)}
           selectionMode="single"
         />
       </div>
@@ -136,6 +198,8 @@ export default function SignupView() {
           placeholder="Enter your Account Name"
           required
           size="lg"
+          value={formData.accountName}
+          onChange={(value: string) => handleChange("accountName", value)}
         />
       </div>
       <div>
@@ -147,12 +211,15 @@ export default function SignupView() {
           placeholder="Enter BVN"
           required
           size="lg"
+          value={formData.bvn}
+          onChange={(value: string) => handleChange("bvn", value)}
+          isInvalid={!!errors.bvn}
+          errorMessage={errors.bvn}
         />
       </div>
-
-
     </div>
   )
+
   const renderStep3 = () => (
     <div className="space-y-6">
       <div>
@@ -165,6 +232,10 @@ export default function SignupView() {
           required
           size="lg"
           reqValue="*"
+          value={formData.address}
+          onChange={(value: string) => handleChange("address", value)}
+          isInvalid={!!errors.address}
+          errorMessage={errors.address}
         />
       </div>
       <div>
@@ -172,11 +243,11 @@ export default function SignupView() {
           label="Institution/Company"
           htmlFor="institution"
           id="institution"
-          isInvalid={false}
-          errorMessage=""
+          isInvalid={!!errors.institution}
+          errorMessage={errors.institution}
           placeholder="Institution/Company"
           options={[]}
-          onChange={() => { }}
+          onChange={(value) => handleChange("institution", value as string)}
           selectionMode="single"
         />
       </div>
@@ -189,6 +260,10 @@ export default function SignupView() {
           placeholder="Enter your IPPIS number"
           required
           size="lg"
+          value={formData.ippis}
+          onChange={(value: string) => handleChange("ippis", value)}
+          isInvalid={!!errors.ippis}
+          errorMessage={errors.ippis}
         />
       </div>
       <div>
@@ -200,7 +275,7 @@ export default function SignupView() {
           errorMessage=""
           placeholder="Choose assigned Telesales Agent"
           options={[]}
-          onChange={() => { }}
+          onChange={(value) => handleChange("telesalesAgent", value as string)}
           selectionMode="single"
         />
       </div>
@@ -222,15 +297,111 @@ export default function SignupView() {
 
   const handleSubmit = async () => {
     setLoading(true);
+    setErrors({});
 
     try {
-      if (currentStep === 3) {
-        router.push("/admin-dashboard");
-      } else {
-        nextStep();
+      if (currentStep === 1) {
+        // Validate Step 1
+        const validationResult = validateForm(signupStep1Schema, {
+          email: formData.email,
+          phone: formData.phoneNumber,
+          password: formData.password,
+          confirmPassword: formData.confirmPassword,
+          referredBy: formData.referralCode || undefined,
+        });
+
+        if (!validationResult.success) {
+          setErrors(validationResult.errors || {});
+          setLoading(false);
+          toast.error("Please fix the errors in the form.");
+          return;
+        }
+
+        // Step 1: Initiate signup
+        const stepOnePayload = {
+          email: formData.email,
+          phone: formData.phoneNumber.replace(/\D/g, ''),
+          password: formData.password,
+          confirmPassword: formData.confirmPassword,
+          referredBy: formData.referralCode || undefined,
+        };
+
+        const response = await signupStepOne(stepOnePayload);
+        
+        if (response?.success || response?.data) {
+          toast.success("Step 1 complete! Proceed to the next step.");
+          nextStep();
+        } else {
+          console.error("Step 1 failed:", response);
+          toast.error(response?.message || "Step 1 failed. Please try again.");
+        }
+      } else if (currentStep === 2) {
+        // Validate Step 2
+        const validationResult = validateForm(signupStep2Schema, {
+          accountNumber: formData.accountNumber,
+          bankName: formData.bankName,
+          bvn: formData.bvn,
+        });
+
+        if (!validationResult.success) {
+          setErrors(validationResult.errors || {});
+          setLoading(false);
+          toast.error("Please fix the errors in the form.");
+          return;
+        }
+
+        // Step 2: Add account info
+        const stepTwoPayload = {
+          accountNumber: formData.accountNumber,
+          bankName: formData.bankName,
+          bvn: formData.bvn,
+        };
+
+        const response = await signupStepTwo(stepTwoPayload);
+        
+        if (response?.success || response?.data) {
+          toast.success("Step 2 complete! Proceed to the next step.");
+          nextStep();
+        } else {
+          console.error("Step 2 failed:", response);
+          toast.error(response?.message || "Step 2 failed. Please try again.");
+        }
+      } else if (currentStep === 3) {
+        // Validate Step 3
+        const validationResult = validateForm(signupStep3Schema, {
+          address: formData.address,
+          ippis: formData.ippis,
+          institution: formData.institution,
+        });
+
+        if (!validationResult.success) {
+          setErrors(validationResult.errors || {});
+          setLoading(false);
+          toast.error("Please fix the errors in the form.");
+          return;
+        }
+
+        // Step 3: Complete signup
+        const stepThreePayload = {
+          address: formData.address,
+          ippis: formData.ippis,
+          institution: formData.institution,
+        };
+
+        const response = await signupStepThree(stepThreePayload);
+        
+        if (response?.success || response?.data) {
+          toast.success("Registration complete! Redirecting to dashboard...");
+          router.push("/admin-dashboard");
+        } else {
+          console.error("Step 3 failed:", response);
+          toast.error(response?.message || "Step 3 failed. Please try again.");
+        }
       }
     } catch (error) {
       console.error("Submission error:", error);
+      toast.error("An unexpected error occurred. Please try again.");
+      // Handle error - show message to user
     } finally {
       setLoading(false);
     }
@@ -309,7 +480,7 @@ export default function SignupView() {
             <div className="flex gap-4">
               <Button
                 isLoading={loading}
-                spinner={loading}
+                spinner
                 type="button"
                 onPress={handleSubmit}
                 className="flex-1 h-12 bg-primaryBlue hover:bg-blue-700 text-white font-semibold text-sm rounded-lg"

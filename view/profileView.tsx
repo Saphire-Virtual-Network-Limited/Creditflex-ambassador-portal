@@ -46,7 +46,7 @@ function UpdateBankDetailsModal({ isOpen, onClose }: { isOpen: boolean; onClose:
     }
 
     return (
-        <ModalWrap size="lg" isOpen={isOpen} onClose={onClose} title="Update Bank Details">
+        <ModalWrap size="sm" isOpen={isOpen} onClose={onClose} title="Update Bank Details">
             <div className="space-y-6">
                 <div>
                     <SelectField

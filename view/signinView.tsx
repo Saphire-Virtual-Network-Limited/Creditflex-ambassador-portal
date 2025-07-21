@@ -8,13 +8,29 @@ import { FormField } from "@/components/reususables";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { ArrowDown } from "lucide-react";
-
+import { login } from "@/lib/api";
+import { loginSchema, validateForm } from "@/lib/validations";
 
 
 export default function SigninView() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const nextSectionRef = useRef<HTMLDivElement>(null);
+    const [formData, setFormData] = useState({
+        email: "",
+        password: "",
+    });
+
+    const [errors, setErrors] = useState<Record<string, string>>({});
+
+    const handleChange = (field: string, value: string) => {
+        // For email field (which can be phone or email), allow both
+        if (field === "email") {
+            setFormData(prev => ({ ...prev, [field]: value }));
+        } else {
+            setFormData(prev => ({ ...prev, [field]: value }));
+        }
+    };
 
 
     // SCROLL TO NEXT SECTION FOR MOBILE
@@ -25,9 +41,31 @@ export default function SigninView() {
 
     const handleSubmit = async () => {
         setLoading(true);
-
+        setErrors({});
+        
         try {
-            router.push("/admin-dashboard");
+            // Validate form
+            const validationResult = validateForm(loginSchema, {
+                email: formData.email,
+                password: formData.password,
+            });
+
+            if (!validationResult.success) {
+                setErrors(validationResult.errors || {});
+                setLoading(false);
+                return;
+            }
+
+            const response = await login({
+                email: formData.email,
+                password: formData.password,
+            });
+            if (response?.success || response?.data) {
+                router.push("/admin-dashboard");
+            } else {
+                // Handle error - show message to user
+                console.error("Login failed:", response);
+            }
         }
         catch (error) {
             console.error("Submission error:", error);
@@ -99,10 +137,14 @@ export default function SigninView() {
                                     htmlFor="contact"
                                     type="text"
                                     id="contact"
-                                    placeholder="Enter your Phone Number/Email Address"
+                                    placeholder="Enter your Email or Phone Number"
                                     required
                                     size="lg"
                                     reqValue="*"
+                                    value={formData.email}
+                                    onChange={(value: string) => handleChange("email", value)}
+                                    isInvalid={!!errors.email}
+                                    errorMessage={errors.email}
                                 />
                             </div>
                             <div>
@@ -115,6 +157,10 @@ export default function SigninView() {
                                     required
                                     size="lg"
                                     reqValue="*"
+                                    value={formData.password}
+                                    onChange={(value: string) => handleChange("password", value)}
+                                    isInvalid={!!errors.password}
+                                    errorMessage={errors.password}
                                 />
                             </div>
                         </div>

@@ -6,6 +6,9 @@ import { DataTable, type Column } from "@/components/reususables/custom-ui/table
 import { SearchForm } from "@/components/reususables/form/searchForm";
 import { Button, Card, CardBody, useDisclosure } from "@heroui/react";
 import { useState } from "react";
+import Image from "next/image";
+import successIcon from "@/public/assets/svgs/green-checkmark.svg";
+
 
 // Onboard Modal
 function OnboardModal({ isOpen, onClose, onSuccess }: { isOpen: boolean; onClose: () => void; onSuccess: () => void }) {
@@ -60,11 +63,15 @@ function OnboardModal({ isOpen, onClose, onSuccess }: { isOpen: boolean; onClose
 // Success Modal
 function SuccessModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
     return (
-        <ModalWrap isOpen={isOpen} onClose={onClose} title="Success">
-            <div className="text-center space-y-4 py-6">
-                <p className="text-lg font-semibold text-green-600">Lead onboarded successfully!</p>
-                <Button onPress={onClose} className="bg-primaryBlue text-white">
-                    Close
+        <ModalWrap hasHeader={false} isOpen={isOpen} onClose={onClose}>
+            <div className="text-center flex flex-col justify-center items-center space-y-4 py-6">
+                <span>
+                    <Image src={successIcon} width={100} alt="Success" />
+                </span>
+                <p className="text-lg font-semibold text-green-600">James Samson has been onboarded successfully</p>
+
+                <Button onPress={onClose} className="bg-primaryBlue px-10 rounded-md text-white">
+                    Okay
                 </Button>
             </div>
         </ModalWrap>
