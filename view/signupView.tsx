@@ -15,7 +15,6 @@ import { ArrowDown } from "lucide-react"
 
 export default function SignupView() {
   const [currentStep, setCurrentStep] = useState(1)
-  const [selectedBank, setSelectedBank] = useState("");
   const [loading, setLoading] = useState(false);
   const nextSectionRef = useRef<HTMLDivElement>(null);
 
@@ -124,7 +123,7 @@ export default function SignupView() {
           errorMessage=""
           placeholder="Select Bank"
           options={bankOptions}
-          onChange={(value) => setSelectedBank(value as string)}
+          onChange={(value) => (value as string)}
           selectionMode="single"
         />
       </div>
@@ -243,11 +242,11 @@ export default function SignupView() {
       {/* Left Section - Hero Content */}
       <div className="bg-primaryBlue text-white flex-1 flex flex-col justify-between relative overflow-hidden lg:max-w-[35%]">
         <div className="relative z-10 mt-5 p-8 lg:p-12">
-          <h1 className="text-3xl text-3xl font-semibold mb-6 leading-tight text-center md:text-left">
+          <h1 className="text-3xl font-semibold mb-6 leading-tight text-center md:text-left">
             Join or Log In to the Sapphire Ambassador Program
           </h1>
           <p className="text-lg text-center md:text-left text-blue-100 mb-8 max-w-md">
-            Earn rewards by referring federal government workers to our loan services. Whether you're just getting
+            Earn rewards by referring federal government workers to our loan services. Whether you&apos;re just getting
             started or returning to track your referrals—sign in or create your account below.
           </p>
           <div className="flex justify-center md:hidden">

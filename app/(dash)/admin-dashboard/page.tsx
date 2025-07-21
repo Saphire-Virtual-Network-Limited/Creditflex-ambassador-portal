@@ -1,9 +1,6 @@
-import { AdminDashView } from "@/view";
-import React from "react";
+import { AdminDashView } from '@/view'
+import React from 'react'
 
-
-const page = () => {
-	return <AdminDashView />;
-};
-
-export default page;
+export default function AdminDashboard() {
+  return <AdminDashView />
+}

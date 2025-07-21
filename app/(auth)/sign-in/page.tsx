@@ -1,9 +1,6 @@
-import { SigninView } from "@/view";
-import React from "react";
+import { SignupView } from '@/view'
+import React from 'react'
 
-
-const page = () => {
-	return <SigninView />;
-};
-
-export default page;
+export default function SignIn() {
+  return <SignupView />
+}

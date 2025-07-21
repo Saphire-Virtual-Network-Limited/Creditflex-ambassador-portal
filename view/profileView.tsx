@@ -1,7 +1,7 @@
 "use client";
 
 
-import React, { useState } from "react";
+import React from "react";
 import {
     Button,
     useDisclosure,
@@ -15,19 +15,18 @@ import { Avatar } from "@/components/ui/avatar";
 
 
 function UpdateBankDetailsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-    const [selectedBank, setSelectedBank] = useState("");
 
-    const [formData, setFormData] = useState({
-        leadName: "",
-        pfaName: "",
-        ippis: "",
-        phoneNumber: "",
-        bvn: "",
-        dateOfBirth: "",
-        gradeLevel: "",
-        state: "",
-        salaryAccount: "",
-    })
+    // const [formData, setFormData] = useState({
+    //     leadName: "",
+    //     pfaName: "",
+    //     ippis: "",
+    //     phoneNumber: "",
+    //     bvn: "",
+    //     dateOfBirth: "",
+    //     gradeLevel: "",
+    //     state: "",
+    //     salaryAccount: "",
+    // })
 
     const bankOptions = [
         { label: "Access Bank", value: "access" },
@@ -36,13 +35,13 @@ function UpdateBankDetailsModal({ isOpen, onClose }: { isOpen: boolean; onClose:
         { label: "Zenith Bank", value: "zenith" }
     ];
 
-    const handleInputChange = (field: string, value: string) => {
-        setFormData((prev) => ({ ...prev, [field]: value }))
-    }
+    // const handleInputChange = (field: string, value: string) => {
+    //     setFormData((prev) => ({ ...prev, [field]: value }))
+    // }
 
     const handleSubmit = () => {
         // Handle form submission
-        console.log("Form submitted:", formData)
+        // console.log("Form submitted:", formData)
         onClose()
     }
 
@@ -58,7 +57,7 @@ function UpdateBankDetailsModal({ isOpen, onClose }: { isOpen: boolean; onClose:
                         errorMessage=""
                         placeholder="Select Bank"
                         options={bankOptions}
-                        onChange={(value) => setSelectedBank(value as string)}
+                        onChange={(value) => (value as string)}
                         selectionMode="single"
                     />
                 </div>

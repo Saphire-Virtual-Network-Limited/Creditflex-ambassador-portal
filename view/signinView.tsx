@@ -6,84 +6,21 @@ import signupIllus from "@/public/assets/svgs/signupIllus.svg"
 import brandLogo from "@/public/assets/images/brand-logo.png"
 import { FormField } from "@/components/reususables";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { z } from "zod";
-import { createSchema } from "@/lib/zodValidator";
-import { useField } from "@/lib/formState";
+import { useRef, useState } from "react";
 import { ArrowDown } from "lucide-react";
-
-
-
-
-const EmailSchema = createSchema((value) => {
-    // More comprehensive email regex that checks for valid format and common TLDs
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    // Trim whitespace and validate
-    const trimmedEmail = value.trim();
-
-    // Check length constraints (RFC 5321)
-    if (trimmedEmail.length < 3 || trimmedEmail.length > 254) {
-        return false;
-    }
-
-    // Check for valid email format
-    if (!emailRegex.test(trimmedEmail)) {
-        return false;
-    }
-
-    // Additional checks for common issues
-    if (trimmedEmail.startsWith('.') || trimmedEmail.endsWith('.')) {
-        return false;
-    }
-
-    if (trimmedEmail.includes('..')) {
-        return false;
-    }
-
-    // Validate local part and domain lengths
-    const [localPart, domain] = trimmedEmail.split('@');
-    if (localPart.length > 64 || domain.length > 255) {
-        return false;
-    }
-
-    return true;
-}, "Please enter a valid email address");
-
-const PhoneSchema = createSchema((value) => {
-    // Must be exactly 11 digits and start with valid Nigerian prefixes
-    const phoneRegex = /^(071|070|080|081|090|091)\d{8}$/;
-    return phoneRegex.test(value);
-}, "Please enter a valid Nigerian 11 digit phone number");
-
-const passwordSchema = createSchema((value) => value.length >= 8 && value.length <= 100, "Password must be between 8-100 characters");
-
-
-
-
-
 
 
 
 export default function SigninView() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
-    const [isDisabled, setIsDisabled] = useState(true);
     const nextSectionRef = useRef<HTMLDivElement>(null);
-
-
-    const { value: email, error: emailError, handleChange: handleEmailChange } = useField("", EmailSchema);
-
-    const { value: password, error: passwordError, handleChange: handlePasswordChange } = useField("", passwordSchema);
 
 
     // SCROLL TO NEXT SECTION FOR MOBILE
     const handleScroll = () => {
         nextSectionRef.current?.scrollIntoView({ behavior: "smooth" });
     };
-
-
-
-
 
 
     const handleSubmit = async () => {
@@ -105,11 +42,11 @@ export default function SigninView() {
             {/* Left Section - Hero Content */}
             <div className="bg-primaryBlue text-white flex-1 flex flex-col justify-between relative overflow-hidden lg:max-w-[35%]">
                 <div className="relative z-10 mt-5 p-8 lg:p-12">
-                    <h1 className="text-3xl text-3xl font-semibold mb-6 leading-tight text-center md:text-left">
+                    <h1 className="text-3xl font-semibold mb-6 leading-tight text-center md:text-left">
                         Join or Log In to the Sapphire Ambassador Program
                     </h1>
                     <p className="text-lg text-center md:text-left text-blue-100 mb-8 max-w-md">
-                        Earn rewards by referring federal government workers to our loan services. Whether you're just getting
+                        Earn rewards by referring federal government workers to our loan services. Whether you&apos;re just getting
                         started or returning to track your referrals—sign in or create your account below.
                     </p>
                     <div className="flex justify-center md:hidden">
