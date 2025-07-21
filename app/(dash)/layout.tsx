@@ -16,16 +16,20 @@ export default function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="flex h-screen overflow-hidden">
+      {/* Sidebar */}
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         activeNav={activeNav}
       />
 
-      <div className="flex-1 flex flex-col lg:ml-0">
+      {/* Main content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
         <TopHeader onMenuClick={() => setSidebarOpen(true)} />
-        <main className="flex-1 p-4 lg:p-8">{children}</main>
+        <main className="flex-1 overflow-y-auto p-4 lg:p-8 bg-gray-50">
+          {children}
+        </main>
       </div>
     </div>
   )

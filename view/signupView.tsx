@@ -1,14 +1,14 @@
 "use client"
 
 import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { useState } from "react"
+import { useRef, useState } from "react"
 import signupIllus from "@/public/assets/svgs/signupIllus.svg"
 import brandLogo from "@/public/assets/images/brand-logo.png"
 import { FormField, SelectField } from "@/components/reususables";
 import backArrow from "@/public/assets/svgs/back-arrow.svg"
 import { useRouter } from "next/navigation";
-
+import { Button } from "@heroui/react";
+import { ArrowDown } from "lucide-react"
 
 
 
@@ -16,7 +16,15 @@ import { useRouter } from "next/navigation";
 export default function SignupView() {
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedBank, setSelectedBank] = useState("");
+  const [loading, setLoading] = useState(false);
+  const nextSectionRef = useRef<HTMLDivElement>(null);
+
   const router = useRouter();
+
+    // SCROLL TO NEXT SECTION FOR MOBILE
+    const handleScroll = () => {
+      nextSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
 
   const bankOptions = [
     { label: "Access Bank", value: "access" },
@@ -213,19 +221,40 @@ export default function SignupView() {
     }
   }
 
+  const handleSubmit = async () => {
+    setLoading(true);
+
+    try {
+      if (currentStep === 3) {
+        router.push("/admin-dashboard");
+      } else {
+        nextStep();
+      }
+    } catch (error) {
+      console.error("Submission error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   return (
     <div className="flex flex-col lg:flex-row h-auto lg:h-screen w-full lg:overflow-hidden">
       {/* Left Section - Hero Content */}
-      <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white flex-1 flex flex-col justify-between relative overflow-hidden lg:max-w-[35%]">
+      <div className="bg-primaryBlue text-white flex-1 flex flex-col justify-between relative overflow-hidden lg:max-w-[35%]">
         <div className="relative z-10 mt-5 p-8 lg:p-12">
-          <h1 className="text-3xl text-3xl font-semibold mb-6 leading-tight">
+          <h1 className="text-3xl text-3xl font-semibold mb-6 leading-tight text-center md:text-left">
             Join or Log In to the Sapphire Ambassador Program
           </h1>
-          <p className="text-lg  text-blue-100 mb-8 max-w-md">
+          <p className="text-lg text-center md:text-left text-blue-100 mb-8 max-w-md">
             Earn rewards by referring federal government workers to our loan services. Whether you're just getting
             started or returning to track your referrals—sign in or create your account below.
           </p>
+          <div className="flex justify-center md:hidden">
+            <Button className="bg-primaryBlue border rounded-full  text-sm text-white" size="lg" onPress={handleScroll}>Get Started
+              <ArrowDown className="w-4 h-4 animate-bounce-down" />
+            </Button>
+          </div>
         </div>
 
         {/* Illustration */}
@@ -244,7 +273,7 @@ export default function SignupView() {
       </div>
 
       {/* Right Section - Sign Up Form */}
-      <div className="bg-white p-8 lg:p-14 flex-1 lg:overflow-y-auto lg:h-screen flex flex-col lg:max-w-none mx-auto lg:mx-0 w-full">
+      <div ref={nextSectionRef} className="bg-white p-8 lg:p-14 flex-1 lg:overflow-y-auto lg:h-screen flex flex-col lg:max-w-none mx-auto lg:mx-0 w-full">
 
         <div className="w-full max-w-md mx-auto pt-10 pb-10">
           {/* Logo */}
@@ -279,11 +308,12 @@ export default function SignupView() {
 
             {/* Navigation Buttons */}
             <div className="flex gap-4">
-
               <Button
+                isLoading={loading}
+                spinner
                 type="button"
-                onClick={currentStep === 3 ? () => router.push("/admin-dashboard") : nextStep}
-                className="flex-1 h-12 bg-primaryBlue hover:bg-blue-700 text-white font-semibold text-sm"
+                onPress={handleSubmit}
+                className="flex-1 h-12 bg-primaryBlue hover:bg-blue-700 text-white font-semibold text-sm rounded-lg"
               >
                 {currentStep === 3 ? "Create Account" : "Continue"}
               </Button>
