@@ -14,6 +14,7 @@ import { signupStepOne, signupStepTwo, signupStepThree } from "@/lib/api";
 import { signupStep1Schema, signupStep2Schema, signupStep3Schema, validateForm } from "@/lib/validations";
 import { toast } from "sonner";
 import React from "react";
+import { TokenManager } from "@/lib/tokenManager";
 
 function SignupViewContent() {
   const [currentStep, setCurrentStep] = useState(1)
@@ -326,7 +327,18 @@ function SignupViewContent() {
 
         const response = await signupStepOne(stepOnePayload);
 
-        if (response?.success || response?.data) {
+        if (response?.statusCode === 200 && response?.data) {
+          // Store the access token from the response
+          if (response?.data?.accessToken) {
+            TokenManager.setAccessToken(response.data.accessToken);
+          }
+          if (response?.data?.refreshToken) {
+            TokenManager.setRefreshToken(response.data.refreshToken);
+          }
+          if (response?.data?.user) {
+            TokenManager.setUserData(response.data.user);
+          }
+          
           toast.success("Step 1 complete! Proceed to the next step.");
           nextStep();
         } else {
@@ -334,6 +346,14 @@ function SignupViewContent() {
           toast.error(response?.message || "Step 1 failed. Please try again.");
         }
       } else if (currentStep === 2) {
+        // Check if we have an access token
+        if (!TokenManager.getAccessToken()) {
+          toast.error("Authentication required. Please start from step 1.");
+          setCurrentStep(1);
+          setLoading(false);
+          return;
+        }
+
         // Validate Step 2
         const validationResult = validateForm(signupStep2Schema, {
           accountNumber: formData.accountNumber,
@@ -365,6 +385,14 @@ function SignupViewContent() {
           toast.error(response?.message || "Step 2 failed. Please try again.");
         }
       } else if (currentStep === 3) {
+        // Check if we have an access token
+        if (!TokenManager.getAccessToken()) {
+          toast.error("Authentication required. Please start from step 1.");
+          setCurrentStep(1);
+          setLoading(false);
+          return;
+        }
+
         // Validate Step 3
         const validationResult = validateForm(signupStep3Schema, {
           address: formData.address,
@@ -491,7 +519,7 @@ function SignupViewContent() {
             <div className="text-center">
               <p className="text-darkCharcoal">
                 Already have an account?{" "}
-                <Button onPress={() => router.push("/sign-in")} variant="ghost" className="text-primaryBlue hover:text-blue-700 font-semibold">
+                <Button onPress={() => router.push("/sign-in")} variant="ghost" className="text-primaryBlue text-sm hover:text-blue-700 p-0 font-semibold">
                   Login
                 </Button>
               </p>
