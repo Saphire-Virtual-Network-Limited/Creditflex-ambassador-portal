@@ -161,4 +161,9 @@ export function refreshToken() {
 export function logout() {
   TokenManager.clearAuth();
 }
+
+// Check user signup status
+export function checkSignupStatus() {
+  return apiCall("/ambassador/signup/status", "GET");
+}
   

@@ -8,7 +8,7 @@ import { FormField, PasswordField } from "@/components/reususables";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { ArrowDown } from "lucide-react";
-import { login } from "@/lib/api";
+import { login, checkSignupStatus } from "@/lib/api";
 import { loginSchema, validateForm } from "@/lib/validations";
 import { toast } from "sonner";
 import { TokenManager } from "@/lib/tokenManager";
@@ -17,6 +17,7 @@ import { TokenManager } from "@/lib/tokenManager";
 export default function SigninView() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [checkingSignup, setCheckingSignup] = useState(false);
     const nextSectionRef = useRef<HTMLDivElement>(null);
     const [formData, setFormData] = useState({
         email: "",
@@ -76,8 +77,52 @@ export default function SigninView() {
                     TokenManager.setUserData(response.data.user);
                 }
                 
-                toast.success("Login successful! Redirecting...");
-                router.push("/admin-dashboard");
+                // Check if user has completed signup
+                setCheckingSignup(true);
+                try {
+                    const signupStatusResponse = await checkSignupStatus();
+                    
+                    if (signupStatusResponse?.statusCode === 200 && signupStatusResponse?.data) {
+                        const { currentStep, isComplete } = signupStatusResponse.data;
+                        
+                        if (isComplete) {
+                            // Signup is complete, redirect to dashboard
+                            toast.success("Login successful! Redirecting to dashboard...");
+                            router.push("/admin-dashboard");
+                        } else if (currentStep && currentStep > 1) {
+                            // User has incomplete signup, redirect to signup with current step
+                            toast.info(`Welcome back! Please complete your signup process.`);
+                            router.push(`/sign-up?step=${currentStep}`);
+                        } else {
+                            // User needs to start signup process
+                            toast.info("Welcome! Please complete your signup process.");
+                            router.push("/sign-up");
+                        }
+                    } else {
+                        // Fallback: check local storage
+                        const localProgress = TokenManager.getSignupProgress();
+                        if (localProgress && !localProgress.isComplete && localProgress.currentStep > 1) {
+                            toast.info(`Welcome back! Please complete your signup process.`);
+                            router.push(`/sign-up?step=${localProgress.currentStep}`);
+                        } else {
+                            toast.success("Login successful! Redirecting to dashboard...");
+                            router.push("/admin-dashboard");
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error checking signup status:", error);
+                    // Fallback: check local storage
+                    const localProgress = TokenManager.getSignupProgress();
+                    if (localProgress && !localProgress.isComplete && localProgress.currentStep > 1) {
+                        toast.info(`Welcome back! Please complete your signup process.`);
+                        router.push(`/sign-up?step=${localProgress.currentStep}`);
+                    } else {
+                        toast.success("Login successful! Redirecting to dashboard...");
+                        router.push("/admin-dashboard");
+                    }
+                } finally {
+                    setCheckingSignup(false);
+                }
             } else {
                 // Handle error - show message to user
                 console.error("Login failed:", response);
@@ -179,12 +224,12 @@ export default function SigninView() {
                         <div className="flex gap-4">
 
                             <Button
-                                isLoading={loading}
+                                isLoading={loading || checkingSignup}
                                 spinner
                                 onPress={handleSubmit}
                                 className="flex-1 h-12 bg-primaryBlue hover:bg-blue-700 text-white font-semibold text-sm rounded-lg [&>svg]:text-white"
                             >
-                                Continue
+                                {checkingSignup ? "Checking..." : "Continue"}
                             </Button>
                         </div>
 
