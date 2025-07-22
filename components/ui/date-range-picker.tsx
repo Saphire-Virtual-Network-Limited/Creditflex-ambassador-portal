@@ -86,12 +86,12 @@ export default function DateRangePicker({
     }
   }
 
-  const isDateSelected = (date: Date) => {
-    if (!selectedStartDate || !selectedEndDate) {
-      return date.getTime() === selectedStartDate?.getTime()
-    }
-    return date >= selectedStartDate && date <= selectedEndDate
-  }
+  // const isDateSelected = (date: Date) => {
+  //   if (!selectedStartDate || !selectedEndDate) {
+  //     return date.getTime() === selectedStartDate?.getTime()
+  //   }
+  //   return date >= selectedStartDate && date <= selectedEndDate
+  // }
 
   const isDateInRange = (date: Date) => {
     if (!selectedStartDate || !selectedEndDate) return false
