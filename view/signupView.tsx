@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { useRef, useState } from "react"
+import { useRef, useState, Suspense } from "react"
 import signupIllus from "@/public/assets/svgs/signupIllus.svg"
 import brandLogo from "@/public/assets/images/brand-logo.png"
 import { FormField, PasswordField, SelectField } from "@/components/reususables";
@@ -15,7 +15,7 @@ import { signupStep1Schema, signupStep2Schema, signupStep3Schema, validateForm }
 import { toast } from "sonner";
 import React from "react";
 
-export default function SignupView() {
+function SignupViewContent() {
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false);
   const nextSectionRef = useRef<HTMLDivElement>(null);
@@ -502,4 +502,12 @@ export default function SignupView() {
       </div>
     </div>
   )
+}
+
+export default function SignupView() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignupViewContent />
+    </Suspense>
+  );
 }
