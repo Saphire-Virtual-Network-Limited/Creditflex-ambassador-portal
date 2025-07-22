@@ -9,7 +9,7 @@ import { useState } from "react"
 
 export default function AdminDashView() {
     const [currentPage, setCurrentPage] = useState(1)
-    const [pageSize, setPageSize] = useState(9)
+    const [pageSize, setPageSize] = useState(10)
 
     const leadData = [
         {

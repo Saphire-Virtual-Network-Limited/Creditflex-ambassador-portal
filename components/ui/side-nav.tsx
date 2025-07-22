@@ -1,8 +1,6 @@
 "use client"
 
 import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { X } from "lucide-react"
 import { useRouter, usePathname } from "next/navigation"
 import brandLogo from "@/public/assets/svgs/brand-logo.svg"
 import cornerBox from "@/public/assets/svgs/corner-box.svg"
@@ -15,7 +13,7 @@ import { useEffect } from "react"
 const navigationItems = [
   { name: "Dashboard", href: "/admin-dashboard", icon: dashboardIcon },
   { name: "Leads", href: "/admin-leads", icon: leadsIcon },
-  { name: "Commissions", href: "/admin-commissions", icon: commissionsIcon },
+  { name: "Commissions", href: "/admin-commission", icon: commissionsIcon },
 ]
 
 interface SidebarProps {

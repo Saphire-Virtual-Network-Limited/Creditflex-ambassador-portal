@@ -99,7 +99,13 @@ export function DataTable({
               const value = Array.from(keys)[0] as string
               onPageSizeChange(Number(value))
             }}
-            className="w-20"
+            classNames={{
+              base: "w-32 bg-gray-100 appearance-none",
+              trigger: "bg-gray-100 min-h-unit-8 appearance-none",
+              value: "text-gray-700",
+              listboxWrapper: "bg-white border border-gray-200",
+              listbox: "bg-white",
+            }}
           >
             <SelectItem key="10" value="10">
               10

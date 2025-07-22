@@ -43,7 +43,7 @@ export default function SigninView() {
     const handleSubmit = async () => {
         setLoading(true);
         setErrors({});
-        
+
         try {
             // Validate form
             const validationResult = validateForm(loginSchema, {
@@ -188,9 +188,9 @@ export default function SigninView() {
                         <div className="text-center ">
                             <p className="text-darkCharcoal">
                                 Don’t have an account?{" "}
-                                <a href="/sign-up" className="text-primaryBlue hover:text-blue-700 font-semibold">
+                                <Button onPress={() => router.push("/sign-up")} variant="ghost" className="text-primaryBlue hover:text-blue-700 font-semibold">
                                     Sign Up
-                                </a>
+                                </Button>
                             </p>
                         </div>
 

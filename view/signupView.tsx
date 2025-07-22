@@ -4,7 +4,7 @@ import Image from "next/image"
 import { useRef, useState } from "react"
 import signupIllus from "@/public/assets/svgs/signupIllus.svg"
 import brandLogo from "@/public/assets/images/brand-logo.png"
-import { FormField, SelectField } from "@/components/reususables";
+import { FormField, PasswordField, SelectField } from "@/components/reususables";
 import backArrow from "@/public/assets/svgs/back-arrow.svg"
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
@@ -103,8 +103,8 @@ export default function SignupView() {
           size="lg"
           value={formData.email}
           onChange={(value: string) => handleChange("email", value)}
-          isInvalid={!!errors.email}
-          errorMessage={errors.email}
+          isInvalid={!!errors.email && formData.email.length > 0}
+          errorMessage={formData.email.length > 0 ? errors.email : ""}
         />
       </div>
       <div>
@@ -113,49 +113,31 @@ export default function SignupView() {
           htmlFor="phoneNumber"
           type="tel"
           id="phoneNumber"
-          placeholder="Enter your Phone Number (numbers only)"
+          placeholder="Enter your Phone Number"
           size="lg"
           value={formData.phoneNumber}
           onChange={(value: string) => handleChange("phoneNumber", value)}
-          isInvalid={!!errors.phone}
-          errorMessage={errors.phone}
+          isInvalid={!!errors.phone && formData.phoneNumber.length > 0}
+          errorMessage={formData.phoneNumber.length > 0 ? errors.phone : ""}
         />
       </div>
 
       <div>
-        <FormField
-          label="Password"
-          htmlFor="password"
-          type="password"
-          id="password"
-          placeholder="Enter Password"
-          required
-          size="lg"
-          reqValue="*"
-          value={formData.password}
-          onChange={(value: string) => handleChange("password", value)}
-          isInvalid={!!errors.password}
-          errorMessage={errors.password}
+        <PasswordField
+          PasswordText="Password"
+          placheolderText="Enter Password"
+          passwordError={errors.password}
+          handlePasswordChange={(value: string) => handleChange("password", value)}
         />
       </div>
-
       <div>
-        <FormField
-          label="Confirm Password"
-          htmlFor="confirmPassword"
-          type="password"
-          id="confirmPassword"
-          placeholder="Confirm Password"
-          required
-          size="lg"
-          reqValue="*"
-          value={formData.confirmPassword}
-          onChange={(value: string) => handleChange("confirmPassword", value)}
-          isInvalid={!!errors.confirmPassword}
-          errorMessage={errors.confirmPassword}
+        <PasswordField
+          PasswordText="Confirm Password"
+          placheolderText="Confirm Password"
+          passwordError={errors.confirmPassword}
+          handlePasswordChange={(value: string) => handleChange("confirmPassword", value)}
         />
       </div>
-
       <div>
         <FormField
           label="Referral Code"
@@ -343,7 +325,7 @@ export default function SignupView() {
         };
 
         const response = await signupStepOne(stepOnePayload);
-        
+
         if (response?.success || response?.data) {
           toast.success("Step 1 complete! Proceed to the next step.");
           nextStep();
@@ -374,7 +356,7 @@ export default function SignupView() {
         };
 
         const response = await signupStepTwo(stepTwoPayload);
-        
+
         if (response?.success || response?.data) {
           toast.success("Step 2 complete! Proceed to the next step.");
           nextStep();
@@ -405,7 +387,7 @@ export default function SignupView() {
         };
 
         const response = await signupStepThree(stepThreePayload);
-        
+
         if (response?.success || response?.data) {
           toast.success("Registration complete! Redirecting to dashboard...");
           router.push("/admin-dashboard");
@@ -506,12 +488,12 @@ export default function SignupView() {
             </div>
 
 
-            <div className="text-center ">
+            <div className="text-center">
               <p className="text-darkCharcoal">
                 Already have an account?{" "}
-                <a href="/sign-in" className="text-primaryBlue hover:text-blue-700 font-semibold">
+                <Button onPress={() => router.push("/sign-in")} variant="ghost" className="text-primaryBlue hover:text-blue-700 font-semibold">
                   Login
-                </a>
+                </Button>
               </p>
             </div>
 
