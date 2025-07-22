@@ -46,6 +46,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 					<Toaster
 						position="top-right"
 						expand={false}
+						closeButton
+						richColors
+						toastOptions={{
+							style: {
+								background: 'white',
+								color: '#333',
+								border: '1px solid #e5e7eb',
+							},
+						}}
 					/>
 					<InternetStatus />
 					<GoogleAnalytics gaId="" />

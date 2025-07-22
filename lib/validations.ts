@@ -15,8 +15,8 @@ const phoneSchema = createSchema(
 
 // Password validation
 const passwordSchema = createSchema(
-  (value) => value.length >= 8 && /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(value),
-  "Password must be at least 8 characters with uppercase, lowercase, and number"
+  (value) => value.length > 4,
+  "Password must be more than 4 characters"
 );
 
 // Account number validation

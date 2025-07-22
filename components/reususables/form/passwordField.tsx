@@ -43,7 +43,8 @@ const PasswordField: React.FC<PasswordInputProps> = ({ passwordError, handlePass
 				placeholder={placheolderText}
 				variant="bordered"
 				classNames={{
-					inputWrapper: ["data-[hover=true]:border-primary group-data-[focus=true]:border-primary"],
+					inputWrapper: ["data-[hover=true]:border-primary group-data-[focus=true]:border-primary border border-lightGray font-light text-sm rounded-lg"],
+					input: ["placeholder:text-[#33333380] disabled:cursor-not-allowed placeholder:text-sm font-light"]
 				}}
 				isInvalid={!!passwordError}
 				aria-label={PasswordText}
@@ -55,7 +56,7 @@ const PasswordField: React.FC<PasswordInputProps> = ({ passwordError, handlePass
 						className="focus:outline-none"
 						type="button"
 						onClick={toggleVisibility}>
-						{isVisible ? <EyeOff className="text-2xl text-default-400 pointer-events-none" /> : <Eye className="text-2xl text-default-400 pointer-events-none" />}
+						{isVisible ? <EyeOff className="text-sm w-5 h-5 text-default-400 pointer-events-none" /> : <Eye className="text-sm w-5 h-5 text-default-400 pointer-events-none" />}
 					</button>
 				}
 				type={isVisible ? "text" : "password"}
@@ -66,6 +67,7 @@ const PasswordField: React.FC<PasswordInputProps> = ({ passwordError, handlePass
 					}
 				}}
 			/>
+			{passwordError && <div className="text-red-500 text-xs">{passwordError}</div>}
 		</div>
 	);
 };

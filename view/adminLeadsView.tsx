@@ -84,7 +84,7 @@ function SuccessModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
 // Main Component
 export default function AdminLeadsView() {
     const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize, setPageSize] = useState(9);
+    const [pageSize, setPageSize] = useState(10);
     const [searchValue, setSearchValue] = useState("");
     const [status, setStatus] = useState("Select Status");
     const { isOpen, onOpen, onClose } = useDisclosure(); // onboard modal
