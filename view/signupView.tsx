@@ -481,7 +481,7 @@ export default function SignupView() {
                 spinner
                 type="button"
                 onPress={handleSubmit}
-                className="flex-1 h-12 bg-primaryBlue hover:bg-blue-700 text-white font-semibold text-sm rounded-lg"
+                className="flex-1 h-12 bg-primaryBlue hover:bg-blue-700 text-white font-semibold text-sm rounded-lg [&>svg]:text-white"
               >
                 {currentStep === 3 ? "Create Account" : "Continue"}
               </Button>

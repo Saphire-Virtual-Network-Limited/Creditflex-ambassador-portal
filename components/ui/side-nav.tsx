@@ -2,18 +2,16 @@
 
 import Image from "next/image"
 import { useRouter, usePathname } from "next/navigation"
+import { Icon } from "@iconify/react"
 import brandLogo from "@/public/assets/svgs/brand-logo.svg"
 import cornerBox from "@/public/assets/svgs/corner-box.svg"
-import dashboardIcon from "@/public/assets/svgs/dashboard-icon.svg"
-import leadsIcon from "@/public/assets/svgs/multiple-user-outlined.svg"
-import commissionsIcon from "@/public/assets/svgs/commisson.svg";
 import cancelIcon from "@/public/assets/svgs/cancelIcon.svg";
 import { useEffect } from "react"
 
 const navigationItems = [
-  { name: "Dashboard", href: "/admin-dashboard", icon: dashboardIcon },
-  { name: "Leads", href: "/admin-leads", icon: leadsIcon },
-  { name: "Commissions", href: "/admin-commission", icon: commissionsIcon },
+  { name: "Dashboard", href: "/admin-dashboard", icon: "material-symbols:dashboard" },
+  { name: "Leads", href: "/admin-leads", icon: "mdi:account-group" },
+  { name: "Commissions", href: "/admin-commission", icon: "fluent:receipt-money-24-filled" },
 ]
 
 interface SidebarProps {
@@ -72,13 +70,19 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
               <button
                 key={item.name}
                 onClick={() => handleNavigation(item.href)}
-                className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg text-left text-white transition-colors ${isActive
-                  ? "bg-blue-700 text-[#98DFEA] bg-opacity-50"
+                className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg text-left transition-colors ${isActive
+                  ? "bg-blue-700 bg-opacity-50"
                   : "hover:bg-blue-700 hover:bg-opacity-30"
                   }`}
               >
-                <Image src={item.icon} alt={`${item.name} icon`} width={20} />
-                <span className="font-medium">{item.name}</span>
+                <Icon 
+                  icon={item.icon} 
+                  width={20} 
+                  className={isActive ? "text-[#98DFEA]" : "text-white"}
+                />
+                <span className={`font-medium ${isActive ? "text-[#98DFEA]" : "text-white"}`}>
+                  {item.name}
+                </span>
               </button>
             )
           })}

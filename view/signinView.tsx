@@ -177,7 +177,7 @@ export default function SigninView() {
                                 isLoading={loading}
                                 spinner
                                 onPress={handleSubmit}
-                                className="flex-1 h-12 bg-primaryBlue hover:bg-blue-700 text-white font-semibold text-sm rounded-lg"
+                                className="flex-1 h-12 bg-primaryBlue hover:bg-blue-700 text-white font-semibold text-sm rounded-lg [&>svg]:text-white"
                             >
                                 Continue
                             </Button>
