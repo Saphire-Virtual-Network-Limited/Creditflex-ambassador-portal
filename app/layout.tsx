@@ -11,7 +11,7 @@ const appColor = "#ffffff";
 
 export const metadata: Metadata = {
 	title: `${appName} `,
-	description: "Designed to help you connect with the right person in a halal way.",
+	description: "Ambassador Portal",
 	manifest: "/manifest",
 };
 
