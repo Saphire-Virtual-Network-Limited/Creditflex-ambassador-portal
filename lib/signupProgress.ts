@@ -1,6 +1,5 @@
 import { TokenManager } from './tokenManager';
 import { checkSignupStatus } from './api';
-import { toast } from 'sonner';
 
 export interface SignupStatus {
   currentStep: number;
