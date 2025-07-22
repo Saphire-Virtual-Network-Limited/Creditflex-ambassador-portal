@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@heroui/react";
 import { ArrowDown } from "lucide-react"
-import { signupStepOne, signupStepTwo, signupStepThree } from "@/lib/api";
+import { signupStepOne, signupStepTwo, signupStepThree, checkSignupStatus } from "@/lib/api";
 import { signupStep1Schema, signupStep2Schema, signupStep3Schema, validateForm } from "@/lib/validations";
 import { toast } from "sonner";
 import React from "react";
@@ -19,6 +19,7 @@ import { TokenManager } from "@/lib/tokenManager";
 function SignupViewContent() {
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false);
+  const [checkingProgress, setCheckingProgress] = useState(true);
   const nextSectionRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -55,6 +56,72 @@ function SignupViewContent() {
     }
   }, [refCodeFromUrl]);
 
+  // Check for existing signup progress
+  React.useEffect(() => {
+    const checkExistingProgress = async () => {
+      try {
+        // Check if there's a step parameter in URL (from signin redirect)
+        const stepFromUrl = searchParams.get("step");
+        if (stepFromUrl) {
+          const step = parseInt(stepFromUrl);
+          if (step >= 1 && step <= 3) {
+            setCurrentStep(step);
+            TokenManager.updateSignupProgress(step, false);
+            toast.info(`Welcome back! Continuing from step ${step}`);
+            setCheckingProgress(false);
+            return;
+          }
+        }
+
+        // Check if user has tokens (indicating they've started signup)
+        const hasTokens = TokenManager.isAuthenticated();
+        
+        if (hasTokens) {
+          // Check server for signup status
+          const statusResponse = await checkSignupStatus();
+          
+          if (statusResponse?.statusCode === 200 && statusResponse?.data) {
+            const { currentStep: serverStep, isComplete } = statusResponse.data;
+            
+            if (isComplete) {
+              // Signup is complete, redirect to dashboard
+              toast.success("Welcome back! Redirecting to dashboard...");
+              router.push("/admin-dashboard");
+              return;
+            } else if (serverStep && serverStep > 1) {
+              // User has incomplete signup, restore to their step
+              setCurrentStep(serverStep);
+              TokenManager.updateSignupProgress(serverStep, false);
+              toast.info(`Welcome back! Continuing from step ${serverStep}`);
+            }
+          } else {
+            // Server check failed, try local storage
+            const localProgress = TokenManager.getSignupProgress();
+            if (localProgress && !localProgress.isComplete && localProgress.currentStep > 1) {
+              setCurrentStep(localProgress.currentStep);
+              toast.info(`Welcome back! Continuing from step ${localProgress.currentStep}`);
+            }
+          }
+        } else {
+          // Check local storage for any saved progress
+          const localProgress = TokenManager.getSignupProgress();
+          if (localProgress && !localProgress.isComplete && localProgress.currentStep > 1) {
+            setCurrentStep(localProgress.currentStep);
+            toast.info(`Welcome back! Continuing from step ${localProgress.currentStep}`);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking signup progress:", error);
+        // If there's an error, just continue with step 1
+        toast.error("Unable to restore your progress. Starting from step 1.");
+      } finally {
+        setCheckingProgress(false);
+      }
+    };
+
+    checkExistingProgress();
+  }, [router, searchParams]);
+
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Handle form field changes
@@ -75,7 +142,7 @@ function SignupViewContent() {
 
   const bankOptions = [
     { label: "Access Bank", value: "access" },
-    { label: "GTBank", value: "gtbank" },
+    { label: "GTBank", value: "Guaranty Trust Bank" },
     { label: "First Bank", value: "firstbank" },
     { label: "Zenith Bank", value: "zenith" }
   ];
@@ -339,6 +406,9 @@ function SignupViewContent() {
             TokenManager.setUserData(response.data.user);
           }
           
+          // Update signup progress
+          TokenManager.updateSignupProgress(2, false);
+          
           toast.success("Step 1 complete! Proceed to the next step.");
           nextStep();
         } else {
@@ -378,6 +448,9 @@ function SignupViewContent() {
         const response = await signupStepTwo(stepTwoPayload);
 
         if (response?.success || response?.data) {
+          // Update signup progress
+          TokenManager.updateSignupProgress(3, false);
+          
           toast.success("Step 2 complete! Proceed to the next step.");
           nextStep();
         } else {
@@ -417,6 +490,9 @@ function SignupViewContent() {
         const response = await signupStepThree(stepThreePayload);
 
         if (response?.success || response?.data) {
+          // Mark signup as complete
+          TokenManager.updateSignupProgress(3, true);
+          
           toast.success("Registration complete! Redirecting to dashboard...");
           router.push("/admin-dashboard");
         } else {
@@ -436,6 +512,16 @@ function SignupViewContent() {
 
   return (
     <div className="flex flex-col lg:flex-row h-auto lg:h-screen w-full lg:overflow-hidden">
+      {/* Show loading while checking progress */}
+      {checkingProgress && (
+        <div className="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primaryBlue mx-auto mb-4"></div>
+            <p className="text-primaryBlue">Checking your progress...</p>
+          </div>
+        </div>
+      )}
+      
       {/* Left Section - Hero Content */}
       <div className="bg-primaryBlue text-white hidden lg:flex flex-1 flex-col justify-between relative overflow-hidden lg:max-w-[35%]">
         <div className="relative z-10 mt-5 p-8 lg:p-12">

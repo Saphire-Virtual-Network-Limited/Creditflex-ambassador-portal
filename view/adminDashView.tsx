@@ -274,7 +274,6 @@ export default function AdminDashView() {
         },
     ]
 
-
     // Define columns for dashboard lead history
     const dashboardLeadColumns: Column[] = [
         { key: "id", header: "S/N", width: "w-12" },
