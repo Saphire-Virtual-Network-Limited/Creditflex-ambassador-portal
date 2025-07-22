@@ -51,7 +51,10 @@ function OnboardModal({ isOpen, onClose, onSuccess }: { isOpen: boolean; onClose
                         selectionMode="single"
                     />
                 </div>
-                <FormField label="Salary Account Number" htmlFor="salaryAccount" type="text" id="salaryAccount" placeholder="Enter Salary Account Number" size="lg" />
+                <div className=" w-1/2">
+                    <FormField label="Salary Account Number" htmlFor="salaryAccount" type="text" id="salaryAccount" placeholder="Enter Salary Account Number" size="lg" />
+                </div>
+
                 <Button className="bg-primaryBlue rounded-lg w-full mt-6 text-sm text-white" size="lg" onPress={handleSubmit}>
                     Onboard
                 </Button>
@@ -63,12 +66,12 @@ function OnboardModal({ isOpen, onClose, onSuccess }: { isOpen: boolean; onClose
 // Success Modal
 function SuccessModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
     return (
-        <ModalWrap hasHeader={false} isOpen={isOpen} onClose={onClose}>
+        <ModalWrap size="sm" hasHeader={false} isOpen={isOpen} onClose={onClose}>
             <div className="text-center flex flex-col justify-center items-center space-y-4 py-6">
                 <span>
                     <Image src={successIcon} width={100} alt="Success" />
                 </span>
-                <p className="text-lg font-semibold text-green-600">James Samson has been onboarded successfully</p>
+                <p className="text-lg font-semibold text-lightBrown">James Samson has been onboarded successfully</p>
 
                 <Button onPress={onClose} className="bg-primaryBlue px-10 rounded-md text-white">
                     Okay
@@ -177,21 +180,24 @@ export default function AdminLeadsView() {
     const statuses = ["Select Status", "Approved", "Declined"];
 
     return (
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col gap-8 md:gap-10">
             <div className="flex flex-col gap-4 md:flex-row md:gap-0 justify-between md:items-center">
-                <h1 className="text-2xl font-bold text-lightBrown">Leads</h1>
-                <Button onPress={onOpen} className="bg-primaryBlue px-8 rounded-md text-white">
-                    Onboard a Lead
-                </Button>
+                <h1 className="text-xl md:text-2xl font-bold text-lightBrown">Leads</h1>
+                <div className="flex justify-end md:justify-start">
+                    <Button onPress={onOpen} className="bg-primaryBlue text-sm md:text-base  px-8 rounded-md text-white">
+                        Onboard a Lead
+                    </Button>
+                </div>
+
             </div>
 
-            <div className="flex flex-col md:flex-row gap-4 items-center p-4">
+            <div className="flex flex-row gap-4 items-center p-4">
                 <SearchForm value={searchValue} onChange={setSearchValue} />
                 <StatusDropdown optionArray={statuses} selected={status} onChange={setStatus} />
             </div>
 
             <Card className="bg-white border border-darkCharcoal/20 rounded-lg">
-                <CardBody className="p-6">
+                <CardBody className="p-6 shadow-md">
                     <DataTable
                         data={filteredData.slice((currentPage - 1) * pageSize, currentPage * pageSize)}
                         columns={dashboardLeadColumns}

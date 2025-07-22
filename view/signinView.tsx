@@ -10,6 +10,7 @@ import { useRef, useState } from "react";
 import { ArrowDown } from "lucide-react";
 import { login } from "@/lib/api";
 import { loginSchema, validateForm } from "@/lib/validations";
+import { toast } from "sonner";
 
 
 export default function SigninView() {
@@ -53,6 +54,7 @@ export default function SigninView() {
             if (!validationResult.success) {
                 setErrors(validationResult.errors || {});
                 setLoading(false);
+                toast.error("Please fix the errors in the form.");
                 return;
             }
 
@@ -61,14 +63,17 @@ export default function SigninView() {
                 password: formData.password,
             });
             if (response?.success || response?.data) {
+                toast.success("Login successful! Redirecting...");
                 router.push("/admin-dashboard");
             } else {
                 // Handle error - show message to user
                 console.error("Login failed:", response);
+                toast.error(response?.message || "Login failed. Please try again.");
             }
         }
         catch (error) {
             console.error("Submission error:", error);
+            toast.error("An unexpected error occurred. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -78,7 +83,7 @@ export default function SigninView() {
     return (
         <div className="flex flex-col lg:flex-row h-auto lg:h-screen w-full lg:overflow-hidden">
             {/* Left Section - Hero Content */}
-            <div className="bg-primaryBlue text-white flex-1 flex flex-col justify-between relative overflow-hidden lg:max-w-[35%]">
+            <div className="bg-primaryBlue text-white hidden lg:flex  flex-1 flex-col justify-between relative overflow-hidden lg:max-w-[35%]">
                 <div className="relative z-10 mt-5 p-8 lg:p-12">
                     <h1 className="text-3xl font-semibold mb-6 leading-tight text-center md:text-left">
                         Join or Log In to the Sapphire Ambassador Program
@@ -170,6 +175,7 @@ export default function SigninView() {
 
                             <Button
                                 isLoading={loading}
+                                spinner
                                 onPress={handleSubmit}
                                 className="flex-1 h-12 bg-primaryBlue hover:bg-blue-700 text-white font-semibold text-sm rounded-lg"
                             >

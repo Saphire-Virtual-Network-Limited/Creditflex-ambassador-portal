@@ -30,10 +30,10 @@ export const StatusDropdown = ({
     <div className="relative inline-block w-full md:w-48" ref={dropdownRef}>
       <button
         onClick={() => setOpen((prev) => !prev)}
-        className="w-full flex justify-between items-center px-4 py-2 border border-gray-300 rounded-md bg-white focus:outline-none"
+        className="w-full flex justify-between items-center px-4 py-2 border border-darkCharcoal/20 text-xs md:text-base rounded-md bg-white focus:outline-none"
       >
         {selected}
-        {open ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+        {open ? <ChevronUp className="w-3 md:w-5 h-3 md:h-5" /> : <ChevronDown className="w-3 md:w-5 h-3 md:h-5" />}
       </button>
 
       {open && (
@@ -45,7 +45,7 @@ export const StatusDropdown = ({
                 onChange(option);
                 setOpen(false);
               }}
-              className="w-full text-left px-4 py-2 hover:bg-gray-100"
+              className="w-full text-left text-xs md:text-base px-4 py-2 hover:bg-gray-100"
             >
               {option}
             </button>

@@ -157,15 +157,15 @@ export default function AdminDashView() {
 
 
     return (
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col gap-8 md:gap-10">
             <div className="flex flex-col gap-4 md:flex-row md:gap-0 justify-between md:items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-lightBrown">Hello, Geraldine</h1>
-                    <p className="text-lightBrown">How are you doing today?</p>
+                    <h1 className="text-xl md:text-2xl font-bold text-lightBrown">Hello, Geraldine</h1>
+                    <p className="text-sm md:text-base text-lightBrown">How are you doing today?</p>
                 </div>
-                <div className="">
+                <div className="hidden md:block">
                     <p className="text-sm font-medium text-lightBrown">Telesales Agent Assigned To:</p>
-                    <p className="font-semibold text-primaryBlue">Abimbola Jinadus</p>
+                    <p className="font-semibold text-right text-primaryBlue">Abimbola Jinadus</p>
                 </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

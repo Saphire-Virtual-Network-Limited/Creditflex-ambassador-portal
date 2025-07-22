@@ -9,7 +9,7 @@ export const InfoCard = ({ cardIcon, cardTitle, cardValue, currencyFormat }: { c
         <CardWrapper>
             <div className="flex items-center gap-4">
                 <div>
-                    <Image src={cardIcon} alt="card-icon" width={64} height={97} />
+                    <Image src={cardIcon} alt="card-icon" className="min-w-16 h-16 md:w-20 md:h-20" width={64} height={97} />
                 </div>
                 <div>
                     <p className="text-sm text-primaryBlue font-medium mb-1">{cardTitle}</p>

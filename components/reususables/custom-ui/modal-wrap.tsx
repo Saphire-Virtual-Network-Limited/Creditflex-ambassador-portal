@@ -31,9 +31,11 @@ export default function ModalWrap({
             size={size}
             hideCloseButton
             scrollBehavior="inside"
+            placement="center"
             classNames={{
-                backdrop: "bg-black/60 backdrop-blur-sm inset-0 z-60",
-                base: `bg-white h-fit rounded-lg shadow-xl`,
+                backdrop: "bg-black/60 backdrop-blur-sm inset-0 z-[100]",
+                base: `bg-white h-fit rounded-lg shadow-xl z-[101]`,
+                wrapper: "z-[100]",
                 body: "py-6",
             }}
         >

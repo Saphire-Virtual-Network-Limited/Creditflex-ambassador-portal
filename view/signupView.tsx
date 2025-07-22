@@ -7,17 +7,24 @@ import brandLogo from "@/public/assets/images/brand-logo.png"
 import { FormField, SelectField } from "@/components/reususables";
 import backArrow from "@/public/assets/svgs/back-arrow.svg"
 import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@heroui/react";
 import { ArrowDown } from "lucide-react"
 import { signupStepOne, signupStepTwo, signupStepThree } from "@/lib/api";
 import { signupStep1Schema, signupStep2Schema, signupStep3Schema, validateForm } from "@/lib/validations";
 import { toast } from "sonner";
+import React from "react";
 
 export default function SignupView() {
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false);
   const nextSectionRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Track if ref_code is present and its value
+  const refCodeFromUrl = searchParams.get("ref_code") || "";
+  const [refCodeLocked, setRefCodeLocked] = useState(false);
 
   // Form state for all steps
   const [formData, setFormData] = useState({
@@ -38,6 +45,14 @@ export default function SignupView() {
     ippis: "",
     telesalesAgent: "",
   });
+
+  // Set referralCode from URL on mount if present
+  React.useEffect(() => {
+    if (refCodeFromUrl) {
+      setFormData(prev => ({ ...prev, referralCode: refCodeFromUrl }));
+      setRefCodeLocked(true);
+    }
+  }, [refCodeFromUrl]);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -153,6 +168,7 @@ export default function SignupView() {
           onChange={(value: string) => handleChange("referralCode", value)}
           isInvalid={!!errors.referredBy}
           errorMessage={errors.referredBy}
+          disabled={refCodeLocked}
         />
       </div>
     </div>
@@ -411,7 +427,7 @@ export default function SignupView() {
   return (
     <div className="flex flex-col lg:flex-row h-auto lg:h-screen w-full lg:overflow-hidden">
       {/* Left Section - Hero Content */}
-      <div className="bg-primaryBlue text-white flex-1 flex flex-col justify-between relative overflow-hidden lg:max-w-[35%]">
+      <div className="bg-primaryBlue text-white hidden lg:flex flex-1 flex-col justify-between relative overflow-hidden lg:max-w-[35%]">
         <div className="relative z-10 mt-5 p-8 lg:p-12">
           <h1 className="text-3xl font-semibold mb-6 leading-tight text-center md:text-left">
             Join or Log In to the Sapphire Ambassador Program

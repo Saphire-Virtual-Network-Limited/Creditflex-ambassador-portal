@@ -25,7 +25,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
       <div className="flex-1 flex flex-col" id="layout-container">
         <TopHeader onMenuClick={() => setSidebarOpen(true)} />
-        <main className="flex-1 p-4 lg:p-8 bg-gray-50">
+        <main className="flex-1 p-4 lg:p-8 bg-white md:bg-[#FBFBFB] overflow-y-auto">
           {children}
         </main>
       </div>
