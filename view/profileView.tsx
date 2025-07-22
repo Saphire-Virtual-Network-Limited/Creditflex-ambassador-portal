@@ -7,27 +7,13 @@ import {
     useDisclosure,
 } from "@heroui/react"
 import { CardWrapper } from "@/components/reususables/card/card-wrapper";
-import avatarImage from "@/public/assets/images/avatar.jpg";
 import ProfileDetailsWrap from "@/components/reususables/custom-ui/profile-details-wrap";
-import { FormField, InputFile, SelectField } from "@/components/reususables";
+import { FormField, SelectField } from "@/components/reususables";
 import ModalWrap from "@/components/reususables/custom-ui/modal-wrap";
 import { Avatar } from "@/components/ui/avatar";
 
 
 function UpdateBankDetailsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-
-    // const [formData, setFormData] = useState({
-    //     leadName: "",
-    //     pfaName: "",
-    //     ippis: "",
-    //     phoneNumber: "",
-    //     bvn: "",
-    //     dateOfBirth: "",
-    //     gradeLevel: "",
-    //     state: "",
-    //     salaryAccount: "",
-    // })
-
     const bankOptions = [
         { label: "Access Bank", value: "access" },
         { label: "GTBank", value: "gtbank" },
@@ -35,13 +21,8 @@ function UpdateBankDetailsModal({ isOpen, onClose }: { isOpen: boolean; onClose:
         { label: "Zenith Bank", value: "zenith" }
     ];
 
-    // const handleInputChange = (field: string, value: string) => {
-    //     setFormData((prev) => ({ ...prev, [field]: value }))
-    // }
 
     const handleSubmit = () => {
-        // Handle form submission
-        // console.log("Form submitted:", formData)
         onClose()
     }
 
