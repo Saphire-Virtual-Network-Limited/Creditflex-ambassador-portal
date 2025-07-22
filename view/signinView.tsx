@@ -4,13 +4,14 @@ import Image from "next/image"
 import { Button } from "@heroui/react";
 import signupIllus from "@/public/assets/svgs/signupIllus.svg"
 import brandLogo from "@/public/assets/images/brand-logo.png"
-import { FormField } from "@/components/reususables";
+import { FormField, PasswordField } from "@/components/reususables";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { ArrowDown } from "lucide-react";
 import { login } from "@/lib/api";
 import { loginSchema, validateForm } from "@/lib/validations";
 import { toast } from "sonner";
+import { TokenManager } from "@/lib/tokenManager";
 
 
 export default function SigninView() {
@@ -62,7 +63,19 @@ export default function SigninView() {
                 email: formData.email,
                 password: formData.password,
             });
-            if (response?.success || response?.data) {
+            
+            if (response?.statusCode === 200 && response?.data) {
+                // Store the access token from the response
+                if (response?.data?.accessToken) {
+                    TokenManager.setAccessToken(response.data.accessToken);
+                }
+                if (response?.data?.refreshToken) {
+                    TokenManager.setRefreshToken(response.data.refreshToken);
+                }
+                if (response?.data?.user) {
+                    TokenManager.setUserData(response.data.user);
+                }
+                
                 toast.success("Login successful! Redirecting...");
                 router.push("/admin-dashboard");
             } else {
@@ -153,19 +166,11 @@ export default function SigninView() {
                                 />
                             </div>
                             <div>
-                                <FormField
-                                    label="Password"
-                                    htmlFor="password"
-                                    type="password"
-                                    id="password"
-                                    placeholder="Enter Password"
-                                    required
-                                    size="lg"
-                                    reqValue="*"
-                                    value={formData.password}
-                                    onChange={(value: string) => handleChange("password", value)}
-                                    isInvalid={!!errors.password}
-                                    errorMessage={errors.password}
+                                <PasswordField
+                                    PasswordText="Password"
+                                    placheolderText="Enter Password"
+                                    passwordError={errors.password}
+                                    handlePasswordChange={(value: string) => handleChange("password", value)}
                                 />
                             </div>
                         </div>
@@ -188,7 +193,7 @@ export default function SigninView() {
                         <div className="text-center ">
                             <p className="text-darkCharcoal">
                                 Don’t have an account?{" "}
-                                <Button onPress={() => router.push("/sign-up")} variant="ghost" className="text-primaryBlue hover:text-blue-700 font-semibold">
+                                <Button onPress={() => router.push("/sign-up")} variant="ghost" className="text-primaryBlue text-sm hover:text-blue-700 p-0 font-semibold">
                                     Sign Up
                                 </Button>
                             </p>

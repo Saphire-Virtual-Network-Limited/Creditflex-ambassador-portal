@@ -1,10 +1,29 @@
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 const appKey = process.env.NEXT_PUBLIC_APP_KEY || process.env.APP_KEY;
 
+import { TokenManager } from './tokenManager';
 
 export interface ApiCallOptions {
   cache?: RequestCache;
   revalidate?: number;
+}
+
+// Helper function to handle API responses and extract tokens
+export function handleAuthResponse(response: any) {
+  if (response?.statusCode === 200 && response?.data) {
+    // Store the access token from the response
+    if (response?.data?.accessToken) {
+      TokenManager.setAccessToken(response.data.accessToken);
+    }
+    if (response?.data?.refreshToken) {
+      TokenManager.setRefreshToken(response.data.refreshToken);
+    }
+    if (response?.data?.user) {
+      TokenManager.setUserData(response.data.user);
+    }
+    return true;
+  }
+  return false;
 }
 
 async function apiCall(
@@ -13,7 +32,8 @@ async function apiCall(
   body?: any,
   requestKey?: string,
   token?: string,
-  options?: ApiCallOptions
+  options?: ApiCallOptions,
+  isRetry: boolean = false
 ) {
   try {
     const headers: HeadersInit = {
@@ -22,7 +42,10 @@ async function apiCall(
 
     if (requestKey) headers["requestApiKey"] = requestKey;
     if (appKey) headers["x-app-key"] = appKey;
-    if (token) headers.Authorization = `Bearer ${token}`;
+    
+    // Use provided token or get from TokenManager
+    const authToken = token || TokenManager.getAccessToken();
+    if (authToken) headers.Authorization = `Bearer ${authToken}`;
 
     const fetchOptions: RequestInit = { method, headers };
 
@@ -44,6 +67,22 @@ async function apiCall(
     const response = await fetch(`${apiUrl}${endpoint}`, fetchOptions);
 
     if (!response.ok) {
+      // Handle token expiration
+      if (response.status === 401 && !isRetry && authToken) {
+        try {
+          // Try to refresh the token
+          const refreshResponse = await refreshToken();
+          if (refreshResponse?.statusCode === 200 && refreshResponse?.data?.accessToken) {
+            // Retry the original request with the new token
+            return apiCall(endpoint, method, body, requestKey, refreshResponse.data.accessToken, options, true);
+          }
+        } catch (refreshError) {
+          console.error("Token refresh failed:", refreshError);
+          // Clear auth data if refresh fails
+          TokenManager.clearAuth();
+        }
+      }
+
       const errorText = await response.text();
       let errorMessage = "Request failed";
       try {
@@ -62,7 +101,6 @@ async function apiCall(
   }
 }
 
-
 // Step 1: Initiate Signup
 interface StepOnePayload {
     email: string;
@@ -76,7 +114,7 @@ interface StepOnePayload {
     return apiCall("/ambassador/signup/initiate", "POST", data);
   }
   
-  // Step 2: Add Account Info
+  // Step 2: Add Account Info - Now requires authentication
   interface StepTwoPayload {
     accountNumber: string;
     bankName: string;
@@ -84,10 +122,11 @@ interface StepOnePayload {
   }
   
   export function signupStepTwo(data: StepTwoPayload) {
+    // This call will automatically include the access token from TokenManager
     return apiCall("/ambassador/signup/account", "PATCH", data);
   }
   
-  // Step 3: Complete Signup
+  // Step 3: Complete Signup - Now requires authentication
   interface StepThreePayload {
     address: string;
     ippis: string;
@@ -95,6 +134,7 @@ interface StepOnePayload {
   }
   
   export function signupStepThree(data: StepThreePayload) {
+    // This call will automatically include the access token from TokenManager
     return apiCall("/ambassador/signup/complete", "PATCH", data);
   }
   
@@ -106,5 +146,19 @@ interface LoginPayload {
 
 export function login(data: LoginPayload) {
   return apiCall("/ambassador/login", "POST", data);
+}
+
+// Refresh token
+export function refreshToken() {
+  const refreshToken = TokenManager.getRefreshToken();
+  if (!refreshToken) {
+    throw new Error("No refresh token available");
+  }
+  return apiCall("/ambassador/refresh", "POST", { refreshToken });
+}
+
+// Logout function
+export function logout() {
+  TokenManager.clearAuth();
 }
   
