@@ -131,7 +131,7 @@ function SignupViewContent() {
   const handleChange = (field: string, value: string) => {
     // Prevent changes to account name once it's been auto-populated
     if (field === "accountName" && accountNameEnabled) {
-      return; // Don't allow changes to account name once it's populated
+      return; 
     }
 
     // For phone number, only allow digits
