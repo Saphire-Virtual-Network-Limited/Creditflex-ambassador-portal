@@ -11,15 +11,19 @@ export interface ApiCallOptions {
 // Helper function to handle API responses and extract tokens
 export function handleAuthResponse(response: any) {
   if (response?.statusCode === 200 && response?.data) {
-    // Store the access token from the response
-    if (response?.data?.accessToken) {
-      TokenManager.setAccessToken(response.data.accessToken);
+    // Store the access token from the response (new structure)
+    if (response?.data?.tokens?.accessToken) {
+      TokenManager.setAccessToken(response.data.tokens.accessToken);
     }
-    if (response?.data?.refreshToken) {
-      TokenManager.setRefreshToken(response.data.refreshToken);
+    if (response?.data?.tokens?.refreshToken) {
+      TokenManager.setRefreshToken(response.data.tokens.refreshToken);
     }
     if (response?.data?.user) {
       TokenManager.setUserData(response.data.user);
+    }
+    // Store the status to track signup progress
+    if (response?.data?.status) {
+      TokenManager.setSignupStatus(response.data.status);
     }
     return true;
   }
@@ -117,7 +121,8 @@ interface StepOnePayload {
   // Step 2: Add Account Info - Now requires authentication
   interface StepTwoPayload {
     accountNumber: string;
-    bankName: string;
+    bankCode: string;
+    accountName: string;
     bvn: string;
   }
   
@@ -129,8 +134,9 @@ interface StepOnePayload {
   // Step 3: Complete Signup - Now requires authentication
   interface StepThreePayload {
     address: string;
-    ippis: string;
-    institution: string;
+    ippis?: string;
+    institution?: string;
+    telesalesAgent?: string;
   }
   
   export function signupStepThree(data: StepThreePayload) {

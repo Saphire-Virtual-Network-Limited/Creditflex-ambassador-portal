@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@heroui/react";
 import { ArrowDown } from "lucide-react"
-import { signupStepOne, signupStepTwo, signupStepThree, checkSignupStatus, getBanks, getBankDetails } from "@/lib/api";
+import { signupStepOne, signupStepTwo, signupStepThree, checkSignupStatus, getBanks, getBankDetails, handleAuthResponse } from "@/lib/api";
 import { signupStep1Schema, signupStep2Schema, signupStep3Schema, validateForm } from "@/lib/validations";
 import { toast } from "sonner";
 import React from "react";
@@ -81,15 +81,30 @@ function SignupViewContent() {
           const statusResponse = await checkSignupStatus();
           
           if (statusResponse?.statusCode === 200 && statusResponse?.data) {
-            const { currentStep: serverStep, isComplete } = statusResponse.data;
+            const { status, currentStep: serverStep, isComplete } = statusResponse.data;
             
-            if (isComplete) {
+            // Store the status
+            if (status) {
+              TokenManager.setSignupStatus(status);
+            }
+            
+            if (isComplete || status === "COMPLETED" || status === "ACTIVE") {
               // Signup is complete, redirect to dashboard
               toast.success("Welcome back! Redirecting to dashboard...");
               router.push("/admin-dashboard");
               return;
+            } else if (status === "INITIATED") {
+              // User has completed step 1, go to step 2
+              setCurrentStep(2);
+              TokenManager.updateSignupProgress(2, false);
+              toast.info("Welcome back! Continuing from step 2");
+            } else if (status === "ACCOUNT_ADDED" || status === "PENDING_COMPLETION") {
+              // User has completed step 2, go to step 3
+              setCurrentStep(3);
+              TokenManager.updateSignupProgress(3, false);
+              toast.info("Welcome back! Continuing from step 3");
             } else if (serverStep && serverStep > 1) {
-              // User has incomplete signup, restore to their step
+              // Fallback to server step if status mapping is unclear
               setCurrentStep(serverStep);
               TokenManager.updateSignupProgress(serverStep, false);
               toast.info(`Welcome back! Continuing from step ${serverStep}`);
@@ -159,6 +174,11 @@ function SignupViewContent() {
 
   // Handle form field changes
   const handleChange = (field: string, value: string) => {
+    // Prevent changes to account name once it's been auto-populated
+    if (field === "accountName" && accountNameEnabled) {
+      return; // Don't allow changes to account name once it's populated
+    }
+
     // For phone number, only allow digits
     if (field === "phoneNumber") {
       const numericValue = value.replace(/\D/g, '');
@@ -316,8 +336,8 @@ function SignupViewContent() {
           label="Bank Name"
           htmlFor="bankName"
           id="bankName"
-          isInvalid={!!errors.bankName}
-          errorMessage={errors.bankName}
+          isInvalid={!!errors.bankCode}
+          errorMessage={errors.bankCode}
           placeholder={loadingBanks ? "Loading banks..." : "Select Bank"}
           options={banks}
           onChange={(value) => handleChange("bankName", value as string)}
@@ -330,12 +350,14 @@ function SignupViewContent() {
           htmlFor="accountName"
           type="text"
           id="accountName"
-          placeholder={loadingBankDetails ? "Fetching account details..." : accountNameEnabled ? "Account name will be auto-populated" : "Select bank and enter account number first"}
+          placeholder={loadingBankDetails ? "Fetching account details..." : accountNameEnabled ? "Account name (auto-populated)" : "Select bank and enter account number first"}
           required
           size="lg"
           value={formData.accountName}
           onChange={(value: string) => handleChange("accountName", value)}
           disabled={!accountNameEnabled || loadingBankDetails}
+          isInvalid={!!errors.accountName}
+          errorMessage={errors.accountName}
         />
         {loadingBankDetails && (
           <div className="text-xs text-blue-600 mt-1">
@@ -386,7 +408,7 @@ function SignupViewContent() {
           id="institution"
           isInvalid={!!errors.institution}
           errorMessage={errors.institution}
-          placeholder="Institution/Company"
+          placeholder="Institution/Company (optional)"
           options={[]}
           onChange={(value) => handleChange("institution", value as string)}
           selectionMode="single"
@@ -398,8 +420,7 @@ function SignupViewContent() {
           htmlFor="ippis"
           type="text"
           id="ippis"
-          placeholder="Enter your IPPIS number"
-          required
+          placeholder="Enter your IPPIS number (optional)"
           size="lg"
           value={formData.ippis}
           onChange={(value: string) => handleChange("ippis", value)}
@@ -414,7 +435,7 @@ function SignupViewContent() {
           id="telesalesAgent"
           isInvalid={false}
           errorMessage=""
-          placeholder="Choose assigned Telesales Agent"
+          placeholder="Choose assigned Telesales Agent (optional)"
           options={[]}
           onChange={(value) => handleChange("telesalesAgent", value as string)}
           selectionMode="single"
@@ -470,19 +491,14 @@ function SignupViewContent() {
         const response = await signupStepOne(stepOnePayload);
 
         if (response?.statusCode === 200 && response?.data) {
-          // Store the access token from the response
-          if (response?.data?.accessToken) {
-            TokenManager.setAccessToken(response.data.accessToken);
-          }
-          if (response?.data?.refreshToken) {
-            TokenManager.setRefreshToken(response.data.refreshToken);
-          }
-          if (response?.data?.user) {
-            TokenManager.setUserData(response.data.user);
-          }
+          // Use the handleAuthResponse function to store tokens and status
+          handleAuthResponse(response);
           
-          // Update signup progress
-          TokenManager.updateSignupProgress(2, false);
+          // Update signup progress based on status
+          const status = response?.data?.status;
+          if (status === "INITIATED") {
+            TokenManager.updateSignupProgress(2, false);
+          }
           
           toast.success("Step 1 complete! Proceed to the next step.");
           nextStep();
@@ -502,7 +518,8 @@ function SignupViewContent() {
         // Validate Step 2
         const validationResult = validateForm(signupStep2Schema, {
           accountNumber: formData.accountNumber,
-          bankName: formData.bankName,
+          bankCode: formData.bankName,
+          accountName: formData.accountName,
           bvn: formData.bvn,
         });
 
@@ -516,15 +533,22 @@ function SignupViewContent() {
         // Step 2: Add account info
         const stepTwoPayload = {
           accountNumber: formData.accountNumber,
-          bankName: formData.bankName,
+          bankCode: formData.bankName, // Bank code as string
+          accountName: formData.accountName, // Auto-populated from bank details API
           bvn: formData.bvn,
         };
 
         const response = await signupStepTwo(stepTwoPayload);
 
-        if (response?.success || response?.data) {
-          // Update signup progress
-          TokenManager.updateSignupProgress(3, false);
+        if (response?.statusCode === 200 && response?.data) {
+          // Use the handleAuthResponse function to store tokens and status
+          handleAuthResponse(response);
+          
+          // Update signup progress based on status
+          const status = response?.data?.status;
+          if (status === "ACCOUNT_ADDED" || status === "PENDING_COMPLETION") {
+            TokenManager.updateSignupProgress(3, false);
+          }
           
           toast.success("Step 2 complete! Proceed to the next step.");
           nextStep();
@@ -544,8 +568,9 @@ function SignupViewContent() {
         // Validate Step 3
         const validationResult = validateForm(signupStep3Schema, {
           address: formData.address,
-          ippis: formData.ippis,
-          institution: formData.institution,
+          ippis: formData.ippis || undefined,
+          institution: formData.institution || undefined,
+          telesalesAgent: formData.telesalesAgent || undefined,
         });
 
         if (!validationResult.success) {
@@ -558,15 +583,22 @@ function SignupViewContent() {
         // Step 3: Complete signup
         const stepThreePayload = {
           address: formData.address,
-          ippis: formData.ippis,
-          institution: formData.institution,
+          ...(formData.ippis && { ippis: formData.ippis }),
+          ...(formData.institution && { institution: formData.institution }),
+          ...(formData.telesalesAgent && { telesalesAgent: formData.telesalesAgent }),
         };
 
         const response = await signupStepThree(stepThreePayload);
 
-        if (response?.success || response?.data) {
-          // Mark signup as complete
-          TokenManager.updateSignupProgress(3, true);
+        if (response?.statusCode === 200 && response?.data) {
+          // Use the handleAuthResponse function to store tokens and status
+          handleAuthResponse(response);
+          
+          // Mark signup as complete based on status
+          const status = response?.data?.status;
+          if (status === "COMPLETED" || status === "ACTIVE") {
+            TokenManager.updateSignupProgress(3, true);
+          }
           
           toast.success("Registration complete! Redirecting to dashboard...");
           router.push("/admin-dashboard");

@@ -37,16 +37,24 @@ const addressSchema = createSchema(
   "Address must be between 10-200 characters"
 );
 
-// IPPIS validation
-const ippisSchema = createSchema(
-  (value) => /^\d{8,12}$/.test(value),
-  "IPPIS number must be 8-12 digits"
+
+// Optional IPPIS validation
+const optionalIppisSchema = z.string().optional().refine(
+  (value) => !value || /^\d{6,12}$/.test(value),
+  { message: "IPPIS number must be 6-12 digits" }
 );
 
-// Institution validation
-const institutionSchema = createSchema(
-  (value) => value.length >= 2 && value.length <= 100,
-  "Institution name must be between 2-100 characters"
+
+// Optional institution validation
+const optionalInstitutionSchema = z.string().optional().refine(
+  (value) => !value || (value.length >= 2 && value.length <= 100),
+  { message: "Institution name must be between 2-100 characters" }
+);
+
+// Optional telesales agent validation
+const optionalTelesalesAgentSchema = z.string().optional().refine(
+  (value) => !value || (value.length >= 2 && value.length <= 100),
+  { message: "Telesales agent name must be between 2-100 characters" }
 );
 
 // Referral code validation (optional)
@@ -77,15 +85,17 @@ export const signupStep1Schema = z.object({
 // Signup Step 2 Schema
 export const signupStep2Schema = z.object({
   accountNumber: accountNumberSchema,
-  bankName: z.string().min(1, "Please select a bank"),
+  bankCode: z.string().min(1, "Please select a bank"),
+  accountName: z.string().min(1, "Account name is required"),
   bvn: bvnSchema,
 });
 
 // Signup Step 3 Schema
 export const signupStep3Schema = z.object({
   address: addressSchema,
-  ippis: ippisSchema,
-  institution: institutionSchema,
+  ippis: optionalIppisSchema,
+  institution: optionalInstitutionSchema,
+  telesalesAgent: optionalTelesalesAgentSchema,
 });
 
 // Login Schema (email or phone)

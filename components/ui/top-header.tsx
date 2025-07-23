@@ -12,6 +12,9 @@ import {
 import { useState } from "react"
 import avatarImage from "@/public/assets/images/avatar.jpg";
 import { useRouter } from "next/navigation";
+import { logout } from "@/lib/api";
+import { toast } from "sonner";
+import { TokenManager } from "@/lib/tokenManager";
 
 
 
@@ -26,6 +29,26 @@ interface HeaderProps {
 const TopHeader = ({ onMenuClick }: HeaderProps) => {
   const [open, setOpen] = useState(false);
   const router = useRouter();
+
+  // Get user data from TokenManager
+  const userData = TokenManager.getUserData();
+  const userName = userData?.name || userData?.email || "User";
+
+  const handleLogout = () => {
+    try {
+      // Clear all authentication data
+      logout();
+      
+      // Show success message
+      toast.success("Logged out successfully");
+      
+      // Redirect to sign-in page
+      router.push("/sign-in");
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Failed to logout. Please try again.");
+    }
+  };
 
   return (
     <header className="sticky top-0 z-10 bg-white md:border-b border-gray-200 px-4 lg:px-8 py-4">
@@ -53,7 +76,7 @@ const TopHeader = ({ onMenuClick }: HeaderProps) => {
           <DropdownMenu onOpenChange={setOpen}>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center gap-2 focus:outline-none outline-none focus:ring-0 focus-visible:ring-0 focus:border-none">
-                <span className="hidden sm:inline">Geraldine</span>
+                <span className="hidden sm:inline">{userName}</span>
                 {open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
               </Button>
             </DropdownMenuTrigger>
@@ -61,7 +84,7 @@ const TopHeader = ({ onMenuClick }: HeaderProps) => {
               <DropdownMenuItem asChild>
                 <p onClick={() => router.push("/profile")} className="cursor-pointer justify-end md:justify-center">Profile</p>
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer justify-end md:justify-center" onSelect={() => console.log("Logging out...")}>
+              <DropdownMenuItem className="cursor-pointer justify-end md:justify-center" onSelect={handleLogout}>
                 Logout
               </DropdownMenuItem>
               <DropdownMenuItem className="md:hidden" >

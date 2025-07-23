@@ -3,6 +3,7 @@ const ACCESS_TOKEN_KEY = 'sapphire_access_token';
 const REFRESH_TOKEN_KEY = 'sapphire_refresh_token';
 const USER_DATA_KEY = 'sapphire_user_data';
 const SIGNUP_PROGRESS_KEY = 'sapphire_signup_progress';
+const SIGNUP_STATUS_KEY = 'sapphire_signup_status';
 
 export interface UserData {
   id?: string;
@@ -108,14 +109,6 @@ export class TokenManager {
     }
   }
 
-  // Clear all auth data
-  static clearAuth(): void {
-    this.removeAccessToken();
-    this.removeRefreshToken();
-    this.removeUserData();
-    this.removeSignupProgress();
-  }
-
   // Check if user is authenticated
   static isAuthenticated(): boolean {
     return !!this.getAccessToken();
@@ -171,5 +164,36 @@ export class TokenManager {
   static getCurrentSignupStep(): number {
     const progress = this.getSignupProgress();
     return progress?.currentStep || 1;
+  }
+
+  // Store signup status from API
+  static setSignupStatus(status: string): void {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(SIGNUP_STATUS_KEY, status);
+    }
+  }
+
+  // Get signup status from API
+  static getSignupStatus(): string | null {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem(SIGNUP_STATUS_KEY);
+    }
+    return null;
+  }
+
+  // Remove signup status
+  static removeSignupStatus(): void {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(SIGNUP_STATUS_KEY);
+    }
+  }
+
+  // Clear all auth data (including signup status)
+  static clearAuth(): void {
+    this.removeAccessToken();
+    this.removeRefreshToken();
+    this.removeUserData();
+    this.removeSignupProgress();
+    this.removeSignupStatus();
   }
 } 
