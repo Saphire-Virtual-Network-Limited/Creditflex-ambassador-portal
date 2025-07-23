@@ -21,10 +21,6 @@ export function handleAuthResponse(response: any) {
     if (response?.data?.user) {
       TokenManager.setUserData(response.data.user);
     }
-    // Store the status to track signup progress
-    if (response?.data?.status) {
-      TokenManager.setSignupStatus(response.data.status);
-    }
     return true;
   }
   return false;
@@ -146,7 +142,8 @@ interface StepOnePayload {
   
 // Login
 interface LoginPayload {
-  email: string;
+  email?: string;
+  phone?: string;
   password: string;
 }
 
@@ -166,11 +163,6 @@ export function refreshToken() {
 // Logout function
 export function logout() {
   TokenManager.clearAuth();
-}
-
-// Check user signup status
-export function checkSignupStatus() {
-  return apiCall("/ambassador/signup/status", "GET");
 }
 
 // Get banks list

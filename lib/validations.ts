@@ -100,8 +100,17 @@ export const signupStep3Schema = z.object({
 
 // Login Schema (email or phone)
 export const loginSchema = z.object({
-  email: z.string().min(1, "Email/Phone is required"),
+  email: z.string().optional(),
+  phone: z.string().optional(),
   password: z.string().min(1, "Password is required"),
+}).refine((data) => {
+  // At least one of email or phone must be provided
+  const hasValidEmail = data.email && emailSchema.safeParse(data.email).success;
+  const hasValidPhone = data.phone && phoneSchema.safeParse(data.phone).success;
+  return hasValidEmail || hasValidPhone;
+}, {
+  message: "Please provide either a valid email address or phone number",
+  path: ["email"],
 });
 
 // Validation helper function

@@ -2,8 +2,6 @@
 const ACCESS_TOKEN_KEY = 'sapphire_access_token';
 const REFRESH_TOKEN_KEY = 'sapphire_refresh_token';
 const USER_DATA_KEY = 'sapphire_user_data';
-const SIGNUP_PROGRESS_KEY = 'sapphire_signup_progress';
-const SIGNUP_STATUS_KEY = 'sapphire_signup_status';
 
 export interface UserData {
   id?: string;
@@ -16,12 +14,6 @@ export interface UserData {
 export interface AuthTokens {
   accessToken: string;
   refreshToken: string;
-}
-
-export interface SignupProgress {
-  currentStep: number;
-  completedSteps: number[];
-  isComplete: boolean;
 }
 
 export class TokenManager {
@@ -114,86 +106,10 @@ export class TokenManager {
     return !!this.getAccessToken();
   }
 
-  // Store signup progress
-  static setSignupProgress(progress: SignupProgress): void {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(SIGNUP_PROGRESS_KEY, JSON.stringify(progress));
-    }
-  }
-
-  // Get signup progress
-  static getSignupProgress(): SignupProgress | null {
-    if (typeof window !== 'undefined') {
-      const data = localStorage.getItem(SIGNUP_PROGRESS_KEY);
-      return data ? JSON.parse(data) : null;
-    }
-    return null;
-  }
-
-  // Update signup progress
-  static updateSignupProgress(step: number, isComplete: boolean = false): void {
-    const currentProgress = this.getSignupProgress() || {
-      currentStep: 1,
-      completedSteps: [],
-      isComplete: false
-    };
-
-    const updatedProgress: SignupProgress = {
-      currentStep: step,
-      completedSteps: [...new Set([...currentProgress.completedSteps, step - 1])],
-      isComplete: isComplete
-    };
-
-    this.setSignupProgress(updatedProgress);
-  }
-
-  // Remove signup progress
-  static removeSignupProgress(): void {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem(SIGNUP_PROGRESS_KEY);
-    }
-  }
-
-  // Check if signup is complete
-  static isSignupComplete(): boolean {
-    const progress = this.getSignupProgress();
-    return progress?.isComplete || false;
-  }
-
-  // Get current signup step
-  static getCurrentSignupStep(): number {
-    const progress = this.getSignupProgress();
-    return progress?.currentStep || 1;
-  }
-
-  // Store signup status from API
-  static setSignupStatus(status: string): void {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(SIGNUP_STATUS_KEY, status);
-    }
-  }
-
-  // Get signup status from API
-  static getSignupStatus(): string | null {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem(SIGNUP_STATUS_KEY);
-    }
-    return null;
-  }
-
-  // Remove signup status
-  static removeSignupStatus(): void {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem(SIGNUP_STATUS_KEY);
-    }
-  }
-
   // Clear all auth data (including signup status)
   static clearAuth(): void {
     this.removeAccessToken();
     this.removeRefreshToken();
     this.removeUserData();
-    this.removeSignupProgress();
-    this.removeSignupStatus();
   }
 } 

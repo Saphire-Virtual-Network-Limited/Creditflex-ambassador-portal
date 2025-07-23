@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@heroui/react";
 import { ArrowDown } from "lucide-react"
-import { signupStepOne, signupStepTwo, signupStepThree, checkSignupStatus, getBanks, getBankDetails, handleAuthResponse } from "@/lib/api";
+import { signupStepOne, signupStepTwo, signupStepThree, getBanks, getBankDetails, handleAuthResponse } from "@/lib/api";
 import { signupStep1Schema, signupStep2Schema, signupStep3Schema, validateForm } from "@/lib/validations";
 import { toast } from "sonner";
 import React from "react";
@@ -66,7 +66,6 @@ function SignupViewContent() {
           const step = parseInt(stepFromUrl);
           if (step >= 1 && step <= 3) {
             setCurrentStep(step);
-            TokenManager.updateSignupProgress(step, false);
             toast.info(`Welcome back! Continuing from step ${step}`);
             setCheckingProgress(false);
             return;
@@ -77,53 +76,9 @@ function SignupViewContent() {
         const hasTokens = TokenManager.isAuthenticated();
         
         if (hasTokens) {
-          // Check server for signup status
-          const statusResponse = await checkSignupStatus();
-          
-          if (statusResponse?.statusCode === 200 && statusResponse?.data) {
-            const { status, currentStep: serverStep, isComplete } = statusResponse.data;
-            
-            // Store the status
-            if (status) {
-              TokenManager.setSignupStatus(status);
-            }
-            
-            if (isComplete || status === "COMPLETED" || status === "ACTIVE") {
-              // Signup is complete, redirect to dashboard
-              toast.success("Welcome back! Redirecting to dashboard...");
-              router.push("/admin-dashboard");
-              return;
-            } else if (status === "INITIATED") {
-              // User has completed step 1, go to step 2
-              setCurrentStep(2);
-              TokenManager.updateSignupProgress(2, false);
-              toast.info("Welcome back! Continuing from step 2");
-            } else if (status === "ACCOUNT_ADDED" || status === "PENDING_COMPLETION") {
-              // User has completed step 2, go to step 3
-              setCurrentStep(3);
-              TokenManager.updateSignupProgress(3, false);
-              toast.info("Welcome back! Continuing from step 3");
-            } else if (serverStep && serverStep > 1) {
-              // Fallback to server step if status mapping is unclear
-              setCurrentStep(serverStep);
-              TokenManager.updateSignupProgress(serverStep, false);
-              toast.info(`Welcome back! Continuing from step ${serverStep}`);
-            }
-          } else {
-            // Server check failed, try local storage
-            const localProgress = TokenManager.getSignupProgress();
-            if (localProgress && !localProgress.isComplete && localProgress.currentStep > 1) {
-              setCurrentStep(localProgress.currentStep);
-              toast.info(`Welcome back! Continuing from step ${localProgress.currentStep}`);
-            }
-          }
-        } else {
-          // Check local storage for any saved progress
-          const localProgress = TokenManager.getSignupProgress();
-          if (localProgress && !localProgress.isComplete && localProgress.currentStep > 1) {
-            setCurrentStep(localProgress.currentStep);
-            toast.info(`Welcome back! Continuing from step ${localProgress.currentStep}`);
-          }
+          // User has tokens, likely completed step 1, go to step 2
+          setCurrentStep(2);
+          toast.info("Welcome back! Continuing from step 2");
         }
       } catch (error) {
         console.error("Error checking signup progress:", error);
@@ -151,8 +106,8 @@ function SignupViewContent() {
       try {
         setLoadingBanks(true);
         const response = await getBanks();
+        console.log(response)
         if (response?.statusCode === 200 && response?.data) {
-          // Transform the bank data to match the expected format
           const bankOptions = response.data.map((bank: any) => ({
             label: bank.name,
             value: bank.code
@@ -494,12 +449,6 @@ function SignupViewContent() {
           // Use the handleAuthResponse function to store tokens and status
           handleAuthResponse(response);
           
-          // Update signup progress based on status
-          const status = response?.data?.status;
-          if (status === "INITIATED") {
-            TokenManager.updateSignupProgress(2, false);
-          }
-          
           toast.success("Step 1 complete! Proceed to the next step.");
           nextStep();
         } else {
@@ -544,12 +493,6 @@ function SignupViewContent() {
           // Use the handleAuthResponse function to store tokens and status
           handleAuthResponse(response);
           
-          // Update signup progress based on status
-          const status = response?.data?.status;
-          if (status === "ACCOUNT_ADDED" || status === "PENDING_COMPLETION") {
-            TokenManager.updateSignupProgress(3, false);
-          }
-          
           toast.success("Step 2 complete! Proceed to the next step.");
           nextStep();
         } else {
@@ -593,12 +536,6 @@ function SignupViewContent() {
         if (response?.statusCode === 200 && response?.data) {
           // Use the handleAuthResponse function to store tokens and status
           handleAuthResponse(response);
-          
-          // Mark signup as complete based on status
-          const status = response?.data?.status;
-          if (status === "COMPLETED" || status === "ACTIVE") {
-            TokenManager.updateSignupProgress(3, true);
-          }
           
           toast.success("Registration complete! Redirecting to dashboard...");
           router.push("/admin-dashboard");
