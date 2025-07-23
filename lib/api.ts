@@ -166,4 +166,17 @@ export function logout() {
 export function checkSignupStatus() {
   return apiCall("/ambassador/signup/status", "GET");
 }
+
+// Get banks list
+export function getBanks() {
+  return apiCall("/ambassador/banks", "GET");
+}
+
+// Get bank details
+export function getBankDetails(accountNumber: string, bankCode: string) {
+  return apiCall("/ambassador/bank-details", "POST", {
+    accountNumber,
+    bankCode
+  });
+}
   

@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@heroui/react";
 import { ArrowDown } from "lucide-react"
-import { signupStepOne, signupStepTwo, signupStepThree, checkSignupStatus } from "@/lib/api";
+import { signupStepOne, signupStepTwo, signupStepThree, checkSignupStatus, getBanks, getBankDetails } from "@/lib/api";
 import { signupStep1Schema, signupStep2Schema, signupStep3Schema, validateForm } from "@/lib/validations";
 import { toast } from "sonner";
 import React from "react";
@@ -124,6 +124,39 @@ function SignupViewContent() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Banks state
+  const [banks, setBanks] = useState<{ label: string; value: string }[]>([]);
+  const [loadingBanks, setLoadingBanks] = useState(false);
+  const [accountNameEnabled, setAccountNameEnabled] = useState(false);
+  const [loadingBankDetails, setLoadingBankDetails] = useState(false);
+
+  // Fetch banks on component mount
+  React.useEffect(() => {
+    const fetchBanks = async () => {
+      try {
+        setLoadingBanks(true);
+        const response = await getBanks();
+        if (response?.statusCode === 200 && response?.data) {
+          // Transform the bank data to match the expected format
+          const bankOptions = response.data.map((bank: any) => ({
+            label: bank.name,
+            value: bank.code
+          }));
+          setBanks(bankOptions);
+        } else {
+          console.error("Failed to fetch banks:", response);
+          toast.error("Failed to load bank options. Please try again.");
+        }
+      } catch (error) {
+        console.error("Error fetching banks:", error);
+        toast.error("Failed to load bank options. Please try again.");
+      } finally {
+        setLoadingBanks(false);
+      }
+    };
+    fetchBanks();
+  }, []);
+
   // Handle form field changes
   const handleChange = (field: string, value: string) => {
     // For phone number, only allow digits
@@ -133,19 +166,55 @@ function SignupViewContent() {
     } else {
       setFormData(prev => ({ ...prev, [field]: value }));
     }
+
+    // Clear account name when account number or bank changes
+    if (field === "accountNumber" || field === "bankName") {
+      setFormData(prev => ({ ...prev, accountName: "" }));
+      setAccountNameEnabled(false);
+    }
+
+    // Call bank details endpoint when bank is selected and account number is available
+    if (field === "bankName" && value && formData.accountNumber) {
+      fetchBankDetails(formData.accountNumber, value);
+    }
+
+    // Call bank details endpoint when account number is entered and bank is already selected
+    if (field === "accountNumber" && value && formData.bankName) {
+      fetchBankDetails(value, formData.bankName);
+    }
+  };
+
+  // Function to fetch bank details
+  const fetchBankDetails = async (accountNumber: string, bankCode: string) => {
+    try {
+      setLoadingBankDetails(true);
+      const response = await getBankDetails(accountNumber, bankCode);
+      console.log("Bank details response:", response);
+      if (response?.statusCode === 200 && response?.data) {
+        setFormData(prev => ({ ...prev, accountName: response.data.account_name }));
+        setAccountNameEnabled(true);
+        toast.success("Account details fetched successfully!");
+      } else {
+        // Clear account name if API call fails
+        setFormData(prev => ({ ...prev, accountName: "" }));
+        setAccountNameEnabled(false);
+        toast.error(response?.message || "Failed to fetch account details. Please check your account number and bank selection.");
+      }
+    } catch (error) {
+      console.error("Error fetching bank details:", error);
+      // Clear account name if there's an error
+      setFormData(prev => ({ ...prev, accountName: "" }));
+      setAccountNameEnabled(false);
+      toast.error("Failed to fetch account details. Please try again.");
+    } finally {
+      setLoadingBankDetails(false);
+    }
   };
 
   // SCROLL TO NEXT SECTION FOR MOBILE
   const handleScroll = () => {
     nextSectionRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-
-  const bankOptions = [
-    { label: "Access Bank", value: "access" },
-    { label: "GTBank", value: "Guaranty Trust Bank" },
-    { label: "First Bank", value: "firstbank" },
-    { label: "Zenith Bank", value: "zenith" }
-  ];
 
   const nextStep = () => {
     if (currentStep < 3) {
@@ -249,8 +318,8 @@ function SignupViewContent() {
           id="bankName"
           isInvalid={!!errors.bankName}
           errorMessage={errors.bankName}
-          placeholder="Select Bank"
-          options={bankOptions}
+          placeholder={loadingBanks ? "Loading banks..." : "Select Bank"}
+          options={banks}
           onChange={(value) => handleChange("bankName", value as string)}
           selectionMode="single"
         />
@@ -261,12 +330,18 @@ function SignupViewContent() {
           htmlFor="accountName"
           type="text"
           id="accountName"
-          placeholder="Enter your Account Name"
+          placeholder={loadingBankDetails ? "Fetching account details..." : accountNameEnabled ? "Account name will be auto-populated" : "Select bank and enter account number first"}
           required
           size="lg"
           value={formData.accountName}
           onChange={(value: string) => handleChange("accountName", value)}
+          disabled={!accountNameEnabled || loadingBankDetails}
         />
+        {loadingBankDetails && (
+          <div className="text-xs text-blue-600 mt-1">
+            Fetching account details...
+          </div>
+        )}
       </div>
       <div>
         <FormField

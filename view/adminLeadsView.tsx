@@ -24,7 +24,7 @@ function OnboardModal({ isOpen, onClose, onSuccess }: { isOpen: boolean; onClose
 
     return (
         <ModalWrap size="4xl" isOpen={isOpen} onClose={onClose} title="Update Bank Details">
-            <div className="space-y-6">
+            <div className="space-y-6 mt-7">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField label="Lead Name" htmlFor="leadName" type="text" id="leadName" placeholder="Enter Lead's Full Name" size="lg" />
                     <FormField label="PFA Name" htmlFor="pfaName" type="text" id="pfaName" placeholder="Enter PFA Name" size="lg" />
