@@ -23,7 +23,7 @@ function OnboardModal({ isOpen, onClose, onSuccess }: { isOpen: boolean; onClose
     };
 
     return (
-        <ModalWrap size="4xl" isOpen={isOpen} onClose={onClose} title="Update Bank Details">
+        <ModalWrap size="4xl" isOpen={isOpen} onClose={onClose} title="Update Bank Details" mobileResponsive={true}>
             <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField label="Lead Name" htmlFor="leadName" type="text" id="leadName" placeholder="Enter Lead's Full Name" size="lg" />
@@ -51,7 +51,7 @@ function OnboardModal({ isOpen, onClose, onSuccess }: { isOpen: boolean; onClose
                         selectionMode="single"
                     />
                 </div>
-                <div className=" w-1/2">
+                <div className="w-full md:w-1/2">
                     <FormField label="Salary Account Number" htmlFor="salaryAccount" type="text" id="salaryAccount" placeholder="Enter Salary Account Number" size="lg" />
                 </div>
 
@@ -377,19 +377,21 @@ export default function AdminLeadsView() {
     });
 
     const dashboardLeadColumns: Column[] = [
-        { key: "id", header: "S/N", width: "w-12" },
-        { key: "leadName", header: "Lead Name" },
-        { key: "pfaName", header: "PFA Name" },
-        { key: "ippis", header: "IPPIS Number" },
-        { key: "bvn", header: "BVN" },
-        { key: "dob", header: "Date Of Birth" },
-        { key: "gradeLevel", header: "Grade Level" },
-        { key: "state", header: "State" },
-        { key: "salaryAccount", header: "Salary A/C Number" },
-        { key: "phone", header: "Phone Number" },
+        { key: "id", header: "S/N", width: "w-16", minWidth: "60px" },
+        { key: "leadName", header: "Lead Name", width: "w-32", minWidth: "120px" },
+        { key: "pfaName", header: "PFA Name", width: "w-32", minWidth: "120px" },
+        { key: "ippis", header: "IPPIS Number", width: "w-28", minWidth: "100px" },
+        { key: "bvn", header: "BVN", width: "w-32", minWidth: "110px" },
+        { key: "dob", header: "Date Of Birth", width: "w-28", minWidth: "100px" },
+        { key: "gradeLevel", header: "Grade Level", width: "w-24", minWidth: "90px" },
+        { key: "state", header: "State", width: "w-20", minWidth: "80px" },
+        { key: "salaryAccount", header: "Salary A/C Number", width: "w-32", minWidth: "120px" },
+        { key: "phone", header: "Phone Number", width: "w-32", minWidth: "110px" },
         {
             key: "status",
             header: "Status",
+            width: "w-24",
+            minWidth: "80px",
             render: (value: string) => (
                 <span className={value === "Approved" ? "text-[#1B7E02] font-medium" : "text-[#FF0000] font-medium"}>
                     {value}

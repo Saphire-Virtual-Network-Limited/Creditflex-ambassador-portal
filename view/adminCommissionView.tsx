@@ -287,18 +287,19 @@ const AdminCommissionView = () => {
     });
 
     const dashboardLeadColumns: Column[] = [
-        { key: "id", header: "S/N", width: "w-12" },
-        { key: "leadName", header: "Lead Name" },
-        { key: "ippis", header: "IPPIS Number" },
-        { key: "phone", header: "Phone Number" },
-        { key: "gradeLevel", header: "Grade Level" },
-        { key: "state", header: "State" },
-
-        { key: "commissions", header: "Commissions" },
-        { key: "lastTransactDate", header: "Last Transaction Date" },
+        { key: "id", header: "S/N", width: "w-16", minWidth: "60px" },
+        { key: "leadName", header: "Lead Name", width: "w-32", minWidth: "120px" },
+        { key: "ippis", header: "IPPIS Number", width: "w-28", minWidth: "100px" },
+        { key: "phone", header: "Phone Number", width: "w-32", minWidth: "110px" },
+        { key: "gradeLevel", header: "Grade Level", width: "w-24", minWidth: "90px" },
+        { key: "state", header: "State", width: "w-20", minWidth: "80px" },
+        { key: "commissions", header: "Commissions", width: "w-32", minWidth: "120px" },
+        { key: "lastTransactDate", header: "Last Transaction Date", width: "w-36", minWidth: "140px" },
         {
             key: "status",
             header: "Status",
+            width: "w-24",
+            minWidth: "80px",
             render: (value: string) => (
                 <span className={value === "Approved" ? "text-[#1B7E02] font-medium" : "text-[#FF0000] font-medium"}>
                     {value}
@@ -314,7 +315,7 @@ const AdminCommissionView = () => {
                 <div className='flex flex-col gap-1'>
                     <h1 className="text-xl md:text-2xl font-bold text-primaryBlue">Commission</h1>
                     <p className='text-sm text-lightBrown tracking-wide'>Total commission earned</p>
-                    <h1 className='text-xl md:text-4xl tracking-wide font-semibold text-lightBrown'>N550,000.00</h1>
+                    <h1 className='text-2xl md:text-4xl tracking-wide font-semibold text-lightBrown'>N550,000.00</h1>
                     <p className='text-sm text-lightBrown font-medium'>Last {calculateDaysDifference()} days</p>
                 </div>
                 <div className="flex flex-col gap-2 items-end p-4">

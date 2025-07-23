@@ -8,16 +8,16 @@ import { FormField, PasswordField } from "@/components/reususables";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { ArrowDown } from "lucide-react";
-import { login, checkSignupStatus } from "@/lib/api";
+import { login } from "@/lib/api";
 import { loginSchema, validateForm } from "@/lib/validations";
 import { toast } from "sonner";
 import { TokenManager } from "@/lib/tokenManager";
+import { handleAuthResponse } from "@/lib/api";
 
 
 export default function SigninView() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
-    const [checkingSignup, setCheckingSignup] = useState(false);
     const nextSectionRef = useRef<HTMLDivElement>(null);
     const [formData, setFormData] = useState({
         email: "",
@@ -25,6 +25,19 @@ export default function SigninView() {
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
+
+    // Helper function to detect if input is email or phone
+    const detectInputType = (input: string) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const phoneRegex = /^(\+234|0)?[789][01]\d{8}$/;
+        
+        if (emailRegex.test(input)) {
+            return 'email';
+        } else if (phoneRegex.test(input.replace(/\D/g, ''))) {
+            return 'phone';
+        }
+        return 'invalid';
+    };
 
     const handleChange = (field: string, value: string) => {
         // For email field (which can be phone or email), allow both
@@ -47,11 +60,29 @@ export default function SigninView() {
         setErrors({});
 
         try {
-            // Validate form
-            const validationResult = validateForm(loginSchema, {
-                email: formData.email,
+            // Determine if the input is email or phone
+            const inputType = detectInputType(formData.email);
+            
+            if (inputType === 'invalid') {
+                setErrors({ email: "Please enter a valid email address or phone number" });
+                setLoading(false);
+                toast.error("Please enter a valid email address or phone number.");
+                return;
+            }
+            
+            // Prepare the data object based on input type
+            const loginData: any = {
                 password: formData.password,
-            });
+            };
+            
+            if (inputType === 'email') {
+                loginData.email = formData.email;
+            } else if (inputType === 'phone') {
+                loginData.phone = formData.email.replace(/\D/g, ''); // Remove non-digits for phone
+            }
+
+            // Validate form
+            const validationResult = validateForm(loginSchema, loginData);
 
             if (!validationResult.success) {
                 setErrors(validationResult.errors || {});
@@ -60,69 +91,15 @@ export default function SigninView() {
                 return;
             }
 
-            const response = await login({
-                email: formData.email,
-                password: formData.password,
-            });
+            const response = await login(loginData);
             
             if (response?.statusCode === 200 && response?.data) {
-                // Store the access token from the response
-                if (response?.data?.accessToken) {
-                    TokenManager.setAccessToken(response.data.accessToken);
-                }
-                if (response?.data?.refreshToken) {
-                    TokenManager.setRefreshToken(response.data.refreshToken);
-                }
-                if (response?.data?.user) {
-                    TokenManager.setUserData(response.data.user);
-                }
+                // Use the handleAuthResponse function to store tokens and user data
+                handleAuthResponse(response);
                 
-                // Check if user has completed signup
-                setCheckingSignup(true);
-                try {
-                    const signupStatusResponse = await checkSignupStatus();
-                    
-                    if (signupStatusResponse?.statusCode === 200 && signupStatusResponse?.data) {
-                        const { currentStep, isComplete } = signupStatusResponse.data;
-                        
-                        if (isComplete) {
-                            // Signup is complete, redirect to dashboard
-                            toast.success("Login successful! Redirecting to dashboard...");
-                            router.push("/admin-dashboard");
-                        } else if (currentStep && currentStep > 1) {
-                            // User has incomplete signup, redirect to signup with current step
-                            toast.info(`Welcome back! Please complete your signup process.`);
-                            router.push(`/sign-up?step=${currentStep}`);
-                        } else {
-                            // User needs to start signup process
-                            toast.info("Welcome! Please complete your signup process.");
-                            router.push("/sign-up");
-                        }
-                    } else {
-                        // Fallback: check local storage
-                        const localProgress = TokenManager.getSignupProgress();
-                        if (localProgress && !localProgress.isComplete && localProgress.currentStep > 1) {
-                            toast.info(`Welcome back! Please complete your signup process.`);
-                            router.push(`/sign-up?step=${localProgress.currentStep}`);
-                        } else {
-                            toast.success("Login successful! Redirecting to dashboard...");
-                            router.push("/admin-dashboard");
-                        }
-                    }
-                } catch (error) {
-                    console.error("Error checking signup status:", error);
-                    // Fallback: check local storage
-                    const localProgress = TokenManager.getSignupProgress();
-                    if (localProgress && !localProgress.isComplete && localProgress.currentStep > 1) {
-                        toast.info(`Welcome back! Please complete your signup process.`);
-                        router.push(`/sign-up?step=${localProgress.currentStep}`);
-                    } else {
-                        toast.success("Login successful! Redirecting to dashboard...");
-                        router.push("/admin-dashboard");
-                    }
-                } finally {
-                    setCheckingSignup(false);
-                }
+                // Redirect to dashboard after successful login
+                toast.success("Login successful! Redirecting to dashboard...");
+                router.push("/admin-dashboard");
             } else {
                 // Handle error - show message to user
                 console.error("Login failed:", response);
@@ -196,11 +173,11 @@ export default function SigninView() {
                         <div className="space-y-6">
                             <div>
                                 <FormField
-                                    label="Phone Number/Email Address"
+                                    label="Email Address or Phone Number"
                                     htmlFor="contact"
                                     type="text"
                                     id="contact"
-                                    placeholder="Enter your Email or Phone Number"
+                                    placeholder="Enter your email address or phone number"
                                     required
                                     size="lg"
                                     reqValue="*"
@@ -224,12 +201,12 @@ export default function SigninView() {
                         <div className="flex gap-4">
 
                             <Button
-                                isLoading={loading || checkingSignup}
+                                isLoading={loading}
                                 spinner
                                 onPress={handleSubmit}
                                 className="flex-1 h-12 bg-primaryBlue hover:bg-blue-700 text-white font-semibold text-sm rounded-lg [&>svg]:text-white"
                             >
-                                {checkingSignup ? "Checking..." : "Continue"}
+                                {loading ? "Logging In..." : "Continue"}
                             </Button>
                         </div>
 

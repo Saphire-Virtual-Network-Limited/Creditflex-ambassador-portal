@@ -4,13 +4,13 @@ import Image from "next/image"
 import { useRef, useState, Suspense } from "react"
 import signupIllus from "@/public/assets/svgs/signupIllus.svg"
 import brandLogo from "@/public/assets/images/brand-logo.png"
-import { FormField, PasswordField, SelectField } from "@/components/reususables";
+import { FormField, PasswordField, SelectField, AutoCompleteField } from "@/components/reususables";
 import backArrow from "@/public/assets/svgs/back-arrow.svg"
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@heroui/react";
 import { ArrowDown } from "lucide-react"
-import { signupStepOne, signupStepTwo, signupStepThree, checkSignupStatus } from "@/lib/api";
+import { signupStepOne, signupStepTwo, signupStepThree, getBanks, getBankDetails, handleAuthResponse } from "@/lib/api";
 import { signupStep1Schema, signupStep2Schema, signupStep3Schema, validateForm } from "@/lib/validations";
 import { toast } from "sonner";
 import React from "react";
@@ -66,7 +66,6 @@ function SignupViewContent() {
           const step = parseInt(stepFromUrl);
           if (step >= 1 && step <= 3) {
             setCurrentStep(step);
-            TokenManager.updateSignupProgress(step, false);
             toast.info(`Welcome back! Continuing from step ${step}`);
             setCheckingProgress(false);
             return;
@@ -75,40 +74,11 @@ function SignupViewContent() {
 
         // Check if user has tokens (indicating they've started signup)
         const hasTokens = TokenManager.isAuthenticated();
-        
+
         if (hasTokens) {
-          // Check server for signup status
-          const statusResponse = await checkSignupStatus();
-          
-          if (statusResponse?.statusCode === 200 && statusResponse?.data) {
-            const { currentStep: serverStep, isComplete } = statusResponse.data;
-            
-            if (isComplete) {
-              // Signup is complete, redirect to dashboard
-              toast.success("Welcome back! Redirecting to dashboard...");
-              router.push("/admin-dashboard");
-              return;
-            } else if (serverStep && serverStep > 1) {
-              // User has incomplete signup, restore to their step
-              setCurrentStep(serverStep);
-              TokenManager.updateSignupProgress(serverStep, false);
-              toast.info(`Welcome back! Continuing from step ${serverStep}`);
-            }
-          } else {
-            // Server check failed, try local storage
-            const localProgress = TokenManager.getSignupProgress();
-            if (localProgress && !localProgress.isComplete && localProgress.currentStep > 1) {
-              setCurrentStep(localProgress.currentStep);
-              toast.info(`Welcome back! Continuing from step ${localProgress.currentStep}`);
-            }
-          }
-        } else {
-          // Check local storage for any saved progress
-          const localProgress = TokenManager.getSignupProgress();
-          if (localProgress && !localProgress.isComplete && localProgress.currentStep > 1) {
-            setCurrentStep(localProgress.currentStep);
-            toast.info(`Welcome back! Continuing from step ${localProgress.currentStep}`);
-          }
+          // User has tokens, likely completed step 1, go to step 2
+          setCurrentStep(2);
+          toast.info("Welcome back! Continuing from step 2");
         }
       } catch (error) {
         console.error("Error checking signup progress:", error);
@@ -124,8 +94,46 @@ function SignupViewContent() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Banks state
+  const [banks, setBanks] = useState<{ label: string; value: string }[]>([]);
+  const [loadingBanks, setLoadingBanks] = useState(false);
+  const [accountNameEnabled, setAccountNameEnabled] = useState(false);
+  const [loadingBankDetails, setLoadingBankDetails] = useState(false);
+
+  // Fetch banks on component mount
+  React.useEffect(() => {
+    const fetchBanks = async () => {
+      try {
+        setLoadingBanks(true);
+        const response = await getBanks();
+        console.log(response)
+        if (response?.statusCode === 200 && response?.data) {
+          const bankOptions = response.data.map((bank: any) => ({
+            label: bank.name,
+            value: bank.code
+          }));
+          setBanks(bankOptions);
+        } else {
+          console.error("Failed to fetch banks:", response);
+          toast.error("Failed to load bank options. Please try again.");
+        }
+      } catch (error) {
+        console.error("Error fetching banks:", error);
+        toast.error("Failed to load bank options. Please try again.");
+      } finally {
+        setLoadingBanks(false);
+      }
+    };
+    fetchBanks();
+  }, []);
+
   // Handle form field changes
   const handleChange = (field: string, value: string) => {
+    // Prevent changes to account name once it's been auto-populated
+    if (field === "accountName" && accountNameEnabled) {
+      return;
+    }
+
     // For phone number, only allow digits
     if (field === "phoneNumber") {
       const numericValue = value.replace(/\D/g, '');
@@ -133,19 +141,55 @@ function SignupViewContent() {
     } else {
       setFormData(prev => ({ ...prev, [field]: value }));
     }
+
+    // Clear account name when account number or bank changes
+    if (field === "accountNumber" || field === "bankName") {
+      setFormData(prev => ({ ...prev, accountName: "" }));
+      setAccountNameEnabled(false);
+    }
+
+    // Call bank details endpoint when bank is selected and account number is available
+    if (field === "bankName" && value && formData.accountNumber) {
+      fetchBankDetails(formData.accountNumber, value);
+    }
+
+    // Call bank details endpoint when account number is entered and bank is already selected
+    if (field === "accountNumber" && value && formData.bankName) {
+      fetchBankDetails(value, formData.bankName);
+    }
+  };
+
+  // Function to fetch bank details
+  const fetchBankDetails = async (accountNumber: string, bankCode: string) => {
+    try {
+      setLoadingBankDetails(true);
+      const response = await getBankDetails(accountNumber, bankCode);
+      console.log("Bank details response:", response);
+      if (response?.statusCode === 200 && response?.data) {
+        setFormData(prev => ({ ...prev, accountName: response.data.account_name }));
+        setAccountNameEnabled(true);
+        toast.success("Account details fetched successfully!");
+      } else {
+        // Clear account name if API call fails
+        setFormData(prev => ({ ...prev, accountName: "" }));
+        setAccountNameEnabled(false);
+        toast.error(response?.message || "Failed to fetch account details. Please check your account number and bank selection.");
+      }
+    } catch (error) {
+      console.error("Error fetching bank details:", error);
+      // Clear account name if there's an error
+      setFormData(prev => ({ ...prev, accountName: "" }));
+      setAccountNameEnabled(false);
+      toast.error("Failed to fetch account details. Please try again.");
+    } finally {
+      setLoadingBankDetails(false);
+    }
   };
 
   // SCROLL TO NEXT SECTION FOR MOBILE
   const handleScroll = () => {
     nextSectionRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-
-  const bankOptions = [
-    { label: "Access Bank", value: "access" },
-    { label: "GTBank", value: "Guaranty Trust Bank" },
-    { label: "First Bank", value: "firstbank" },
-    { label: "Zenith Bank", value: "zenith" }
-  ];
 
   const nextStep = () => {
     if (currentStep < 3) {
@@ -243,16 +287,17 @@ function SignupViewContent() {
         />
       </div>
       <div>
-        <SelectField
+        <AutoCompleteField
           label="Bank Name"
           htmlFor="bankName"
           id="bankName"
-          isInvalid={!!errors.bankName}
-          errorMessage={errors.bankName}
-          placeholder="Select Bank"
-          options={bankOptions}
-          onChange={(value) => handleChange("bankName", value as string)}
-          selectionMode="single"
+          isInvalid={!!errors.bankCode}
+          errorMessage={errors.bankCode || ""}
+          placeholder={loadingBanks ? "Loading banks..." : banks.length > 0 ? "Search/select bank" : "No bank available"}
+          value={formData.bankName}
+          onChange={(value: string) => handleChange("bankName", value)}
+          options={banks}
+          isDisabled={loadingBanks || banks.length === 0}
         />
       </div>
       <div>
@@ -261,12 +306,20 @@ function SignupViewContent() {
           htmlFor="accountName"
           type="text"
           id="accountName"
-          placeholder="Enter your Account Name"
+          placeholder={loadingBankDetails ? "Fetching account details..." : accountNameEnabled ? "Account name (auto-populated)" : "Select bank and enter account number first"}
           required
           size="lg"
           value={formData.accountName}
           onChange={(value: string) => handleChange("accountName", value)}
+          disabled={!accountNameEnabled || loadingBankDetails}
+          isInvalid={!!errors.accountName}
+          errorMessage={errors.accountName}
         />
+        {loadingBankDetails && (
+          <div className="text-xs text-blue-600 mt-1">
+            Fetching account details...
+          </div>
+        )}
       </div>
       <div>
         <FormField
@@ -311,7 +364,7 @@ function SignupViewContent() {
           id="institution"
           isInvalid={!!errors.institution}
           errorMessage={errors.institution}
-          placeholder="Institution/Company"
+          placeholder="Institution/Company (optional)"
           options={[]}
           onChange={(value) => handleChange("institution", value as string)}
           selectionMode="single"
@@ -323,8 +376,7 @@ function SignupViewContent() {
           htmlFor="ippis"
           type="text"
           id="ippis"
-          placeholder="Enter your IPPIS number"
-          required
+          placeholder="Enter your IPPIS number (optional)"
           size="lg"
           value={formData.ippis}
           onChange={(value: string) => handleChange("ippis", value)}
@@ -339,7 +391,7 @@ function SignupViewContent() {
           id="telesalesAgent"
           isInvalid={false}
           errorMessage=""
-          placeholder="Choose assigned Telesales Agent"
+          placeholder="Choose assigned Telesales Agent (optional)"
           options={[]}
           onChange={(value) => handleChange("telesalesAgent", value as string)}
           selectionMode="single"
@@ -395,20 +447,9 @@ function SignupViewContent() {
         const response = await signupStepOne(stepOnePayload);
 
         if (response?.statusCode === 200 && response?.data) {
-          // Store the access token from the response
-          if (response?.data?.accessToken) {
-            TokenManager.setAccessToken(response.data.accessToken);
-          }
-          if (response?.data?.refreshToken) {
-            TokenManager.setRefreshToken(response.data.refreshToken);
-          }
-          if (response?.data?.user) {
-            TokenManager.setUserData(response.data.user);
-          }
-          
-          // Update signup progress
-          TokenManager.updateSignupProgress(2, false);
-          
+          // Use the handleAuthResponse function to store tokens and status
+          handleAuthResponse(response);
+
           toast.success("Step 1 complete! Proceed to the next step.");
           nextStep();
         } else {
@@ -427,7 +468,8 @@ function SignupViewContent() {
         // Validate Step 2
         const validationResult = validateForm(signupStep2Schema, {
           accountNumber: formData.accountNumber,
-          bankName: formData.bankName,
+          bankCode: formData.bankName,
+          accountName: formData.accountName,
           bvn: formData.bvn,
         });
 
@@ -441,16 +483,17 @@ function SignupViewContent() {
         // Step 2: Add account info
         const stepTwoPayload = {
           accountNumber: formData.accountNumber,
-          bankName: formData.bankName,
+          bankCode: formData.bankName, // Bank code as string
+          accountName: formData.accountName, // Auto-populated from bank details API
           bvn: formData.bvn,
         };
 
         const response = await signupStepTwo(stepTwoPayload);
 
-        if (response?.success || response?.data) {
-          // Update signup progress
-          TokenManager.updateSignupProgress(3, false);
-          
+        if (response?.statusCode === 200 && response?.data) {
+          // Use the handleAuthResponse function to store tokens and status
+          handleAuthResponse(response);
+
           toast.success("Step 2 complete! Proceed to the next step.");
           nextStep();
         } else {
@@ -469,8 +512,9 @@ function SignupViewContent() {
         // Validate Step 3
         const validationResult = validateForm(signupStep3Schema, {
           address: formData.address,
-          ippis: formData.ippis,
-          institution: formData.institution,
+          ippis: formData.ippis || undefined,
+          institution: formData.institution || undefined,
+          telesalesAgent: formData.telesalesAgent || undefined,
         });
 
         if (!validationResult.success) {
@@ -483,16 +527,17 @@ function SignupViewContent() {
         // Step 3: Complete signup
         const stepThreePayload = {
           address: formData.address,
-          ippis: formData.ippis,
-          institution: formData.institution,
+          ...(formData.ippis && { ippis: formData.ippis }),
+          ...(formData.institution && { institution: formData.institution }),
+          ...(formData.telesalesAgent && { telesalesAgent: formData.telesalesAgent }),
         };
 
         const response = await signupStepThree(stepThreePayload);
 
-        if (response?.success || response?.data) {
-          // Mark signup as complete
-          TokenManager.updateSignupProgress(3, true);
-          
+        if (response?.statusCode === 200 && response?.data) {
+          // Use the handleAuthResponse function to store tokens and status
+          handleAuthResponse(response);
+
           toast.success("Registration complete! Redirecting to dashboard...");
           router.push("/admin-dashboard");
         } else {
@@ -521,7 +566,7 @@ function SignupViewContent() {
           </div>
         </div>
       )}
-      
+
       {/* Left Section - Hero Content */}
       <div className="bg-primaryBlue text-white hidden lg:flex flex-1 flex-col justify-between relative overflow-hidden lg:max-w-[35%]">
         <div className="relative z-10 mt-5 p-8 lg:p-12">

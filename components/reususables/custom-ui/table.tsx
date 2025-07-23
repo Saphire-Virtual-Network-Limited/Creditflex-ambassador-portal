@@ -8,6 +8,7 @@ export interface Column {
   key: string
   header: string
   width?: string
+  minWidth?: string
   render?: (value: any, row: any) => React.ReactNode
 }
 
@@ -63,12 +64,16 @@ export function DataTable({
   return (
     <div className="space-y-4">
       {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full">
+      <div className="overflow-x-auto scrollbar-hide">
+        <table className="w-full min-w-full">
           <thead>
             <tr className="border-b border-gray-200">
               {columns.map((column) => (
-                <th key={column.key} className={`text-left py-3 px-4 font-semibold text-xs text-lightBrown ${column.width || ""}`}>
+                <th 
+                  key={column.key} 
+                  className={`text-left py-3 px-2 sm:px-4 font-semibold text-xs text-lightBrown whitespace-nowrap ${column.width || ""} ${column.minWidth || ""}`}
+                  style={{ minWidth: column.minWidth }}
+                >
                   {column.header}
                 </th>
               ))}
@@ -78,7 +83,11 @@ export function DataTable({
             {data.map((row, index) => (
               <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
                 {columns.map((column) => (
-                  <td key={column.key} className="py-3 px-4 text-darkCharcoal text-xs font-medium">
+                  <td 
+                    key={column.key} 
+                    className={`py-3 px-2 sm:px-4 text-darkCharcoal text-xs font-medium whitespace-nowrap ${column.width || ""} ${column.minWidth || ""}`}
+                    style={{ minWidth: column.minWidth }}
+                  >
                     {column.render ? column.render(row[column.key], row) : row[column.key]}
                   </td>
                 ))}

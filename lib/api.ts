@@ -11,12 +11,12 @@ export interface ApiCallOptions {
 // Helper function to handle API responses and extract tokens
 export function handleAuthResponse(response: any) {
   if (response?.statusCode === 200 && response?.data) {
-    // Store the access token from the response
-    if (response?.data?.accessToken) {
-      TokenManager.setAccessToken(response.data.accessToken);
+    // Store the access token from the response (new structure)
+    if (response?.data?.tokens?.accessToken) {
+      TokenManager.setAccessToken(response.data.tokens.accessToken);
     }
-    if (response?.data?.refreshToken) {
-      TokenManager.setRefreshToken(response.data.refreshToken);
+    if (response?.data?.tokens?.refreshToken) {
+      TokenManager.setRefreshToken(response.data.tokens.refreshToken);
     }
     if (response?.data?.user) {
       TokenManager.setUserData(response.data.user);
@@ -117,7 +117,8 @@ interface StepOnePayload {
   // Step 2: Add Account Info - Now requires authentication
   interface StepTwoPayload {
     accountNumber: string;
-    bankName: string;
+    bankCode: string;
+    accountName: string;
     bvn: string;
   }
   
@@ -129,8 +130,9 @@ interface StepOnePayload {
   // Step 3: Complete Signup - Now requires authentication
   interface StepThreePayload {
     address: string;
-    ippis: string;
-    institution: string;
+    ippis?: string;
+    institution?: string;
+    telesalesAgent?: string;
   }
   
   export function signupStepThree(data: StepThreePayload) {
@@ -140,7 +142,8 @@ interface StepOnePayload {
   
 // Login
 interface LoginPayload {
-  email: string;
+  email?: string;
+  phone?: string;
   password: string;
 }
 
@@ -162,8 +165,16 @@ export function logout() {
   TokenManager.clearAuth();
 }
 
-// Check user signup status
-export function checkSignupStatus() {
-  return apiCall("/ambassador/signup/status", "GET");
+// Get banks list
+export function getBanks() {
+  return apiCall("/ambassador/banks", "GET");
+}
+
+// Get bank details
+export function getBankDetails(accountNumber: string, bankCode: string) {
+  return apiCall("/ambassador/bank-details", "POST", {
+    accountNumber,
+    bankCode
+  });
 }
   
