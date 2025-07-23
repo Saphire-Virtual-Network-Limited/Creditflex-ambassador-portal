@@ -80,19 +80,27 @@ export function DataTable({
             </tr>
           </thead>
           <tbody>
-            {data.map((row, index) => (
-              <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
-                {columns.map((column) => (
-                  <td 
-                    key={column.key} 
-                    className={`py-3 px-2 sm:px-4 text-darkCharcoal text-xs font-medium whitespace-nowrap ${column.width || ""} ${column.minWidth || ""}`}
-                    style={{ minWidth: column.minWidth }}
-                  >
-                    {column.render ? column.render(row[column.key], row) : row[column.key]}
-                  </td>
-                ))}
+            {data.length > 0 ? (
+              data.map((row, index) => (
+                <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
+                  {columns.map((column) => (
+                    <td 
+                      key={column.key} 
+                      className={`py-3 px-2 sm:px-4 text-darkCharcoal text-xs font-medium whitespace-nowrap ${column.width || ""} ${column.minWidth || ""}`}
+                      style={{ minWidth: column.minWidth }}
+                    >
+                      {column.render ? column.render(row[column.key], row) : row[column.key]}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={columns.length} className="py-12 text-center">
+                  <div className="text-lightBrown font-medium bg-gray700Opac py-4 text-sm">No search found</div>
+                </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>

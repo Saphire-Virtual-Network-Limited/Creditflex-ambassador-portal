@@ -79,6 +79,7 @@ export default {
 				lightBrown: "#3A3A3A",
 				lightGray: "#D2D2D2",
 				darkCharcoal: "#333333",
+				gray700Opac: "#EDEDED80"
 				
 			},
 			borderRadius: {

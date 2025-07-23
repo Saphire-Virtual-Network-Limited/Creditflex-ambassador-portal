@@ -96,9 +96,26 @@ export default function SigninView() {
                 // Use the handleAuthResponse function to store tokens and user data
                 handleAuthResponse(response);
                 
-                // Redirect to dashboard after successful login
-                toast.success("Login successful! Redirecting to dashboard...");
-                router.push("/admin-dashboard");
+                // Get the user's KYC status and redirect accordingly
+                const kycStatus = response?.data?.status;
+                
+                if (kycStatus === 'PROFILE_COMPLETE') {
+                    // User has completed all steps, redirect to dashboard
+                    toast.success("Login successful! Redirecting to dashboard...");
+                    router.push("/admin-dashboard");
+                } else if (kycStatus === 'INITIATED') {
+                    // User completed step 1, redirect to step 2
+                    toast.success("Login successful! Continuing from step 2...");
+                    router.push("/sign-up?step=2");
+                } else if (kycStatus === 'BANK_LINKED') {
+                    // User completed step 2, redirect to step 3
+                    toast.success("Login successful! Continuing from step 3...");
+                    router.push("/sign-up?step=3");
+                } else {
+                    // Unknown status or no status, redirect to step 1
+                    toast.success("Login successful! Please complete your registration...");
+                    router.push("/sign-up");
+                }
             } else {
                 // Handle error - show message to user
                 console.error("Login failed:", response);
