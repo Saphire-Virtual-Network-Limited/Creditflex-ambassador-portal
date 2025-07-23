@@ -25,7 +25,7 @@ function SignupViewContent() {
   const searchParams = useSearchParams();
 
   // Track if ref_code is present and its value
-  const refCodeFromUrl = searchParams.get("ref_code") || "";
+  const refCodeFromUrl = searchParams?.get("ref_code") || "";
   const [refCodeLocked, setRefCodeLocked] = useState(false);
 
   // Form state for all steps
@@ -61,7 +61,7 @@ function SignupViewContent() {
     const checkExistingProgress = async () => {
       try {
         // Check if there's a step parameter in URL (from signin redirect)
-        const stepFromUrl = searchParams.get("step");
+        const stepFromUrl = searchParams?.get("step");
         if (stepFromUrl) {
           const step = parseInt(stepFromUrl);
           if (step >= 1 && step <= 3) {
