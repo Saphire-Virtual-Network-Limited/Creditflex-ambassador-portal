@@ -5,11 +5,12 @@ import { DataTable, type Column } from "@/components/reususables/custom-ui/table
 import multipleUser from "@/public/assets/svgs/multiple-user-filled.svg"
 import { Button, Card, CardBody } from "@heroui/react"
 import { useState } from "react"
-
+import { useRouter } from "next/navigation"
 
 export default function AdminDashView() {
     const [currentPage, setCurrentPage] = useState(1)
     const [pageSize, setPageSize] = useState(10)
+    const router = useRouter();
 
     const leadData = [
         {
@@ -276,19 +277,21 @@ export default function AdminDashView() {
 
     // Define columns for dashboard lead history
     const dashboardLeadColumns: Column[] = [
-        { key: "id", header: "S/N", width: "w-12" },
-        { key: "leadName", header: "Lead Name" },
-        { key: "pfaName", header: "PFA Name" },
-        { key: "ippis", header: "IPPIS Number" },
-        { key: "bvn", header: "BVN" },
-        { key: "dob", header: "Date Of Birth" },
-        { key: "gradeLevel", header: "Grade Level" },
-        { key: "state", header: "State" },
-        { key: "salaryAccount", header: "Salary A/C Number" },
-        { key: "phone", header: "Phone Number" },
+        { key: "id", header: "S/N", width: "w-16", minWidth: "60px" },
+        { key: "leadName", header: "Lead Name", width: "w-32", minWidth: "120px" },
+        { key: "pfaName", header: "PFA Name", width: "w-32", minWidth: "120px" },
+        { key: "ippis", header: "IPPIS Number", width: "w-28", minWidth: "100px" },
+        { key: "bvn", header: "BVN", width: "w-32", minWidth: "110px" },
+        { key: "dob", header: "Date Of Birth", width: "w-28", minWidth: "100px" },
+        { key: "gradeLevel", header: "Grade Level", width: "w-24", minWidth: "90px" },
+        { key: "state", header: "State", width: "w-20", minWidth: "80px" },
+        { key: "salaryAccount", header: "Salary A/C Number", width: "w-32", minWidth: "120px" },
+        { key: "phone", header: "Phone Number", width: "w-32", minWidth: "110px" },
         {
             key: "status",
             header: "Status",
+            width: "w-24",
+            minWidth: "80px",
             render: (value: string) => (
                 <span className={value === "Approved" ? "text-[#1B7E02] font-medium" : "text-[#FF0000] font-medium"}>
                     {value}
@@ -320,7 +323,7 @@ export default function AdminDashView() {
                 <CardBody className="p-6">
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-base font-semibold text-primaryBlue">Lead History</h2>
-                        <Button className="text-primaryBlue bg-transparent text-sm font-medium">
+                        <Button onPress={() => router.push("/admin-leads")} className="text-primaryBlue bg-transparent text-sm font-medium">
                             View all
                         </Button>
                     </div>

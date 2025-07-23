@@ -28,9 +28,9 @@ const TopHeader = ({ onMenuClick }: HeaderProps) => {
   const router = useRouter();
 
   return (
-    <header className="sticky top-0 z-20 bg-white md:border-b border-gray-200 px-4 lg:px-8 py-4">
+    <header className="sticky top-0 z-10 bg-white md:border-b border-gray-200 px-4 lg:px-8 py-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center border rounded-md gap-4">
           <Button
             variant="ghost"
             size="sm"
@@ -65,7 +65,7 @@ const TopHeader = ({ onMenuClick }: HeaderProps) => {
                 Logout
               </DropdownMenuItem>
               <DropdownMenuItem className="md:hidden" >
-                <div className="md:hidden">
+                <div className="md:hidden text-right md:text-center">
                   <p className="text-xs font-medium text-lightBrown">Telesales Agent Assigned To:</p>
                   <p className="font-semibold text-primaryBlue">Abimbola Jinadus</p>
                 </div>
