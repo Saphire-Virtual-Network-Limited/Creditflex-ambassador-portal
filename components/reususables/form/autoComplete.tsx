@@ -42,7 +42,7 @@ const AutoCompleteField: React.FC<AutoCompleteFieldProps> = ({ label, htmlFor, i
 				variant="bordered"
 				isDisabled={isDisabled}
 				classNames={{
-					base: "rounded-lg  bg-white  ",
+					base: "rounded-lg border border-lightGray bg-white  ",
 				}}>
 				{options.map((option) => (
 					<AutocompleteItem

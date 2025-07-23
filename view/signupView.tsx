@@ -4,7 +4,7 @@ import Image from "next/image"
 import { useRef, useState, Suspense } from "react"
 import signupIllus from "@/public/assets/svgs/signupIllus.svg"
 import brandLogo from "@/public/assets/images/brand-logo.png"
-import { FormField, PasswordField, SelectField } from "@/components/reususables";
+import { FormField, PasswordField, SelectField, AutoCompleteField } from "@/components/reususables";
 import backArrow from "@/public/assets/svgs/back-arrow.svg"
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
@@ -74,7 +74,7 @@ function SignupViewContent() {
 
         // Check if user has tokens (indicating they've started signup)
         const hasTokens = TokenManager.isAuthenticated();
-        
+
         if (hasTokens) {
           // User has tokens, likely completed step 1, go to step 2
           setCurrentStep(2);
@@ -131,7 +131,7 @@ function SignupViewContent() {
   const handleChange = (field: string, value: string) => {
     // Prevent changes to account name once it's been auto-populated
     if (field === "accountName" && accountNameEnabled) {
-      return; 
+      return;
     }
 
     // For phone number, only allow digits
@@ -287,16 +287,17 @@ function SignupViewContent() {
         />
       </div>
       <div>
-        <SelectField
+        <AutoCompleteField
           label="Bank Name"
           htmlFor="bankName"
           id="bankName"
           isInvalid={!!errors.bankCode}
-          errorMessage={errors.bankCode}
-          placeholder={loadingBanks ? "Loading banks..." : "Select Bank"}
+          errorMessage={errors.bankCode || ""}
+          placeholder={loadingBanks ? "Loading banks..." : banks.length > 0 ? "Search/select bank" : "No bank available"}
+          value={formData.bankName}
+          onChange={(value: string) => handleChange("bankName", value)}
           options={banks}
-          onChange={(value) => handleChange("bankName", value as string)}
-          selectionMode="single"
+          isDisabled={loadingBanks || banks.length === 0}
         />
       </div>
       <div>
@@ -448,7 +449,7 @@ function SignupViewContent() {
         if (response?.statusCode === 200 && response?.data) {
           // Use the handleAuthResponse function to store tokens and status
           handleAuthResponse(response);
-          
+
           toast.success("Step 1 complete! Proceed to the next step.");
           nextStep();
         } else {
@@ -492,7 +493,7 @@ function SignupViewContent() {
         if (response?.statusCode === 200 && response?.data) {
           // Use the handleAuthResponse function to store tokens and status
           handleAuthResponse(response);
-          
+
           toast.success("Step 2 complete! Proceed to the next step.");
           nextStep();
         } else {
@@ -536,7 +537,7 @@ function SignupViewContent() {
         if (response?.statusCode === 200 && response?.data) {
           // Use the handleAuthResponse function to store tokens and status
           handleAuthResponse(response);
-          
+
           toast.success("Registration complete! Redirecting to dashboard...");
           router.push("/admin-dashboard");
         } else {
@@ -565,7 +566,7 @@ function SignupViewContent() {
           </div>
         </div>
       )}
-      
+
       {/* Left Section - Hero Content */}
       <div className="bg-primaryBlue text-white hidden lg:flex flex-1 flex-col justify-between relative overflow-hidden lg:max-w-[35%]">
         <div className="relative z-10 mt-5 p-8 lg:p-12">
