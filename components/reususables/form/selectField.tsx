@@ -56,7 +56,7 @@ const SelectField: React.FC<SelectFieldProps> = ({ label, htmlFor, id, isInvalid
 						base: "border border-lightGray rounded-lg",
 						trigger: ["flex items-center justify-between w-full pr-10 data-[focus=true]:border-lightGray active:border-primary"],
 						innerWrapper: "truncate whitespace-inherit text-[#33333380] text-sm font-light text-left",
-						value: "truncate whitespace-inherit text-sm text-left",
+						value: "truncate whitespace-inherit text-sm text-left text-black",
 					}}
 				>
 					{options.map((option) => (
