@@ -1,3 +1,6 @@
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
 // Token management utilities
 const ACCESS_TOKEN_KEY = 'sapphire_access_token';
 const REFRESH_TOKEN_KEY = 'sapphire_refresh_token';
@@ -153,4 +156,51 @@ export class TokenManager {
     this.removeUserData();
     this.removeKYCStatus();
   }
+
+  // Sign out user and trigger global events
+  static signOut(): void {
+    this.clearAuth();
+    AuthEventManager.triggerSignOut();
+  }
+}
+
+// Global auth event system
+export class AuthEventManager {
+  private static listeners: Array<() => void> = [];
+
+  static addSignOutListener(callback: () => void): void {
+    this.listeners.push(callback);
+  }
+
+  static removeSignOutListener(callback: () => void): void {
+    this.listeners = this.listeners.filter(listener => listener !== callback);
+  }
+
+  static triggerSignOut(): void {
+    this.listeners.forEach(callback => {
+      try {
+        callback();
+      } catch (error) {
+        console.error('Error in sign-out listener:', error);
+      }
+    });
+  }
+} 
+
+// React hook for handling sign-out events
+export function useAuthListener() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const handleSignOut = () => {
+      // Redirect to sign-in page when signed out
+      router.push('/sign-in');
+    };
+
+    AuthEventManager.addSignOutListener(handleSignOut);
+
+    return () => {
+      AuthEventManager.removeSignOutListener(handleSignOut);
+    };
+  }, [router]);
 } 

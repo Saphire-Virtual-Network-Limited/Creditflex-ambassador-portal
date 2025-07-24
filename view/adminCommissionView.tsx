@@ -6,11 +6,15 @@ import { Card, CardBody } from '@heroui/react';
 import DateRangePicker from '@/components/ui/date-range-picker';
 import React, { useState } from 'react'
 import { DataTable, type Column } from "@/components/reususables/custom-ui/table";
+import { useAuthListener } from "@/lib/tokenManager";
 
 const AdminCommissionView = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [searchValue, setSearchValue] = useState("");
+
+    // Listen for auth events (sign-out, token expiration)
+    useAuthListener();
     
     // Get current week (Sunday to Saturday)
     const getCurrentWeekRange = () => {
@@ -341,6 +345,8 @@ const AdminCommissionView = () => {
                         pageSize={pageSize}
                         onPageChange={setCurrentPage}
                         onPageSizeChange={setPageSize}
+                        emptyMessage="No commission data available"
+                        hasOriginalData={leadData.length > 0}
                     />
                 </CardBody>
             </Card>

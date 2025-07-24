@@ -9,12 +9,13 @@ import backArrow from "@/public/assets/svgs/back-arrow.svg"
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@heroui/react";
-import { ArrowDown } from "lucide-react"
-import { signupStepOne, signupStepTwo, signupStepThree, getBanks, getBankDetails, handleAuthResponse } from "@/lib/api";
+import { ArrowDown, Loader2 } from "lucide-react"
+import { signupStepOne, signupStepTwo, signupStepThree, getBanks, getBankDetails, getInstitutions, getTelesalesAgents, handleAuthResponse } from "@/lib/api";
 import { signupStep1Schema, signupStep2Schema, signupStep3Schema, validateForm } from "@/lib/validations";
 import { toast } from "sonner";
 import React from "react";
 import { TokenManager } from "@/lib/tokenManager";
+import { Label } from "@/components/ui/label";
 
 function SignupViewContent() {
   const [currentStep, setCurrentStep] = useState(1)
@@ -45,7 +46,7 @@ function SignupViewContent() {
     address: "",
     institution: "",
     ippis: "",
-    telesalesAgent: "",
+    telesaleAgent: "",
   });
 
   // Set referralCode from URL on mount if present
@@ -109,6 +110,14 @@ function SignupViewContent() {
   const [accountNameEnabled, setAccountNameEnabled] = useState(false);
   const [loadingBankDetails, setLoadingBankDetails] = useState(false);
 
+  // Institutions state
+  const [institutions, setInstitutions] = useState<{ label: string; value: string }[]>([]);
+  const [loadingInstitutions, setLoadingInstitutions] = useState(false);
+
+  // Telesales agents state
+  const [telesalesAgents, setTelesalesAgents] = useState<{ label: string; value: string }[]>([]);
+  const [loadingTelesalesAgents, setLoadingTelesalesAgents] = useState(false);
+
   // Fetch banks on component mount
   React.useEffect(() => {
     const fetchBanks = async () => {
@@ -134,6 +143,60 @@ function SignupViewContent() {
       }
     };
     fetchBanks();
+  }, []);
+
+  // Fetch institutions on component mount
+  React.useEffect(() => {
+    const fetchInstitutions = async () => {
+      try {
+        setLoadingInstitutions(true);
+        const response = await getInstitutions();
+        console.log("Institutions response:", response);
+        if (response?.statusCode === 200 && response?.data) {
+          const institutionOptions = response.data.map((institution: any) => ({
+            label: institution.institutionName,
+            value: institution.institutionName
+          }));
+          setInstitutions(institutionOptions);
+        } else {
+          console.error("Failed to fetch institutions:", response);
+          toast.error("Failed to load institution options. Please try again.");
+        }
+      } catch (error) {
+        console.error("Error fetching institutions:", error);
+        toast.error("Failed to load institution options. Please try again.");
+      } finally {
+        setLoadingInstitutions(false);
+      }
+    };
+    fetchInstitutions();
+  }, []);
+
+  // Fetch telesales agents on component mount
+  React.useEffect(() => {
+    const fetchTelesalesAgents = async () => {
+      try {
+        setLoadingTelesalesAgents(true);
+        const response = await getTelesalesAgents();
+        console.log("Telesales agents response:", response);
+        if (response?.statusCode === 200 && response?.data) {
+          const agentOptions = response.data.map((agent: any) => ({
+            label: agent.fullName,
+            value: agent.teleSalesId
+          }));
+          setTelesalesAgents(agentOptions);
+        } else {
+          console.error("Failed to fetch telesales agents:", response);
+          toast.error("Failed to load telesales agent options. Please try again.");
+        }
+      } catch (error) {
+        console.error("Error fetching telesales agents:", error);
+        toast.error("Failed to load telesales agent options. Please try again.");
+      } finally {
+        setLoadingTelesalesAgents(false);
+      }
+    };
+    fetchTelesalesAgents();
   }, []);
 
   // Handle form field changes
@@ -367,17 +430,28 @@ function SignupViewContent() {
         />
       </div>
       <div>
-        <SelectField
-          label="Institution/Company"
-          htmlFor="institution"
-          id="institution"
-          isInvalid={!!errors.institution}
-          errorMessage={errors.institution}
-          placeholder="Institution/Company (optional)"
-          options={[]}
-          onChange={(value) => handleChange("institution", value as string)}
-          selectionMode="single"
-        />
+        {loadingInstitutions ? (
+          <div className="space-y-1.5">
+            <Label className="mb-2 text-base font-medium text-lightBrown">
+              Institution/Company
+            </Label>
+            <div className="h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+              <div className="text-sm text-gray-500">Loading institutions...</div>
+            </div>
+          </div>
+        ) : (
+          <SelectField
+            label="Institution/Company"
+            htmlFor="institution"
+            id="institution"
+            isInvalid={!!errors.institution}
+            errorMessage={errors.institution}
+            placeholder={institutions.length > 0 ? "Select institution/company (optional)" : "No institutions available"}
+            options={institutions}
+            onChange={(value) => handleChange("institution", value as string)}
+            selectionMode="single"
+          />
+        )}
       </div>
       <div>
         <FormField
@@ -396,13 +470,13 @@ function SignupViewContent() {
       <div>
         <SelectField
           label="Choose Assigned Telesales Agent"
-          htmlFor="telesalesAgent"
-          id="telesalesAgent"
+          htmlFor="telesaleAgent"
+          id="telesaleAgent"
           isInvalid={false}
           errorMessage=""
-          placeholder="Choose assigned Telesales Agent (optional)"
-          options={[]}
-          onChange={(value) => handleChange("telesalesAgent", value as string)}
+          placeholder={loadingTelesalesAgents ? "Loading telesales agents..." : telesalesAgents.length > 0 ? "Choose assigned Telesales Agent (optional)" : "No telesales agents available"}
+          options={telesalesAgents}
+          onChange={(value) => handleChange("telesaleAgent", value as string)}
           selectionMode="single"
         />
       </div>
@@ -523,7 +597,7 @@ function SignupViewContent() {
           address: formData.address,
           ippis: formData.ippis || undefined,
           institution: formData.institution || undefined,
-          telesalesAgent: formData.telesalesAgent || undefined,
+          telesaleAgent: formData.telesaleAgent || undefined,
         });
 
         if (!validationResult.success) {
@@ -538,7 +612,7 @@ function SignupViewContent() {
           address: formData.address,
           ...(formData.ippis && { ippis: formData.ippis }),
           ...(formData.institution && { institution: formData.institution }),
-          ...(formData.telesalesAgent && { telesalesAgent: formData.telesalesAgent }),
+          ...(formData.telesaleAgent && { telesaleAgent: formData.telesaleAgent }),
         };
 
         const response = await signupStepThree(stepThreePayload);
@@ -547,8 +621,8 @@ function SignupViewContent() {
           // Use the handleAuthResponse function to store tokens and status
           handleAuthResponse(response);
 
-          toast.success("Registration complete! Redirecting to dashboard...");
-          router.push("/admin-dashboard");
+          toast.success("Registration complete! Please sign in to continue.");
+          router.push("/sign-in");
         } else {
           console.error("Step 3 failed:", response);
           toast.error(response?.message || "Step 3 failed. Please try again.");
@@ -646,12 +720,19 @@ function SignupViewContent() {
             <div className="flex gap-4">
               <Button
                 isLoading={loading}
-                spinner
+                spinner={<Loader2 className="h-4 w-4 animate-spin" />}
                 type="button"
                 onPress={handleSubmit}
                 className="flex-1 h-12 bg-primaryBlue hover:bg-blue-700 text-white font-semibold text-sm rounded-lg [&>svg]:text-white"
+                disabled={loading}
               >
-                {currentStep === 3 ? "Create Account" : "Continue"}
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    {currentStep === 3 ? "Creating Account..." : "Processing..."}
+                  </div>
+                ) : (
+                  currentStep === 3 ? "Create Account" : "Continue"
+                )}
               </Button>
             </div>
 

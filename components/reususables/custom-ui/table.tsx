@@ -20,6 +20,8 @@ interface DataTableProps {
   pageSize: number
   onPageChange: (page: number) => void
   onPageSizeChange: (pageSize: number) => void
+  emptyMessage?: string
+  hasOriginalData?: boolean
 }
 
 export function DataTable({
@@ -30,6 +32,8 @@ export function DataTable({
   pageSize,
   onPageChange,
   onPageSizeChange,
+  emptyMessage = "No data available",
+  hasOriginalData = true,
 }: DataTableProps) {
   const totalPages = Math.ceil(totalItems / pageSize)
   const startItem = (currentPage - 1) * pageSize + 1
@@ -97,7 +101,9 @@ export function DataTable({
             ) : (
               <tr>
                 <td colSpan={columns.length} className="py-12 text-center">
-                  <div className="text-lightBrown font-medium bg-gray700Opac py-4 text-sm">No search found</div>
+                  <div className="text-lightBrown font-medium bg-gray700Opac py-4 text-sm">
+                    {hasOriginalData ? "No search found" : emptyMessage}
+                  </div>
                 </td>
               </tr>
             )}
