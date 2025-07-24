@@ -2,10 +2,12 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 const appKey = process.env.NEXT_PUBLIC_APP_KEY || process.env.APP_KEY;
 
 import { TokenManager } from './tokenManager';
+import { toast } from 'sonner';
 
 export interface ApiCallOptions {
   cache?: RequestCache;
   revalidate?: number;
+  signal?: AbortSignal;
 }
 
 // Helper function to handle API responses and extract tokens
@@ -68,6 +70,11 @@ async function apiCall(
       if (options?.revalidate !== undefined) fetchOptions.next = { revalidate: options.revalidate };
     }
 
+    // Add abort signal if provided
+    if (options?.signal) {
+      fetchOptions.signal = options.signal;
+    }
+
     const response = await fetch(`${apiUrl}${endpoint}`, fetchOptions);
 
     if (!response.ok) {
@@ -79,11 +86,19 @@ async function apiCall(
           if (refreshResponse?.statusCode === 200 && refreshResponse?.data?.accessToken) {
             // Retry the original request with the new token
             return apiCall(endpoint, method, body, requestKey, refreshResponse.data.accessToken, options, true);
+          } else {
+            // Refresh failed, sign out user
+            console.error("Token refresh failed:", refreshResponse);
+            toast.error("Session expired. Please sign in again.");
+            TokenManager.signOut();
+            throw new Error("Session expired. Please sign in again.");
           }
         } catch (refreshError) {
           console.error("Token refresh failed:", refreshError);
-          // Clear auth data if refresh fails
-          TokenManager.clearAuth();
+          // Clear auth data and trigger sign-out if refresh fails
+          toast.error("Session expired. Please sign in again.");
+          TokenManager.signOut();
+          throw new Error("Session expired. Please sign in again.");
         }
       }
 
@@ -136,7 +151,7 @@ interface StepOnePayload {
     address: string;
     ippis?: string;
     institution?: string;
-    telesalesAgent?: string;
+    telesaleAgent?: string;
   }
   
   export function signupStepThree(data: StepThreePayload) {
@@ -166,7 +181,7 @@ export function refreshToken() {
 
 // Logout function
 export function logout() {
-  TokenManager.clearAuth();
+  TokenManager.signOut();
 }
 
 // Get banks list
@@ -175,10 +190,49 @@ export function getBanks() {
 }
 
 // Get bank details
-export function getBankDetails(accountNumber: string, bankCode: string) {
+export function getBankDetails(accountNumber: string, bankCode: string, signal?: AbortSignal) {
   return apiCall("/ambassador/bank-details", "POST", {
     accountNumber,
     bankCode
-  });
+  }, undefined, undefined, { signal });
+}
+
+// Get institutions list
+export function getInstitutions() {
+  return apiCall("/ambassador/institutions", "GET");
+}
+
+// Get telesales agents list
+export function getTelesalesAgents() {
+  return apiCall("/ambassador/agents", "GET");
+}
+
+// Get ambassador profile
+export function getAmbassadorProfile() {
+  return apiCall("/ambassador/id", "GET");
+}
+
+// Create lead
+interface CreateLeadPayload {
+  leadName: string;
+  ippisNumber: string;
+  phoneNumber: string;
+  bvn: string;
+  salaryAccountNumber: string;
+  salaryAccountName: string;
+  salaryBankCode: string;
+  gradeLevel: string;
+  pfaName: string;
+  dob: string;
+  state: string;
+}
+
+export function createLead(data: CreateLeadPayload) {
+  return apiCall("/ambassador/create-lead", "POST", data);
+}
+
+// Get all leads for ambassador
+export function getLeads() {
+  return apiCall("/ambassador/leads", "GET");
 }
   

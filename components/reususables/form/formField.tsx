@@ -22,9 +22,11 @@ interface FormFieldProps {
 	maxLen?: number;
 	value?: any;
 	disabled?: boolean;
+	min?: string;
+	max?: string;
 }
 
-const FormField: React.FC<FormFieldProps> = ({ label, htmlFor, type, id, isInvalid, errorMessage, placeholder, startcnt, onChange, reqValue, required, minLen, maxLen, value, disabled }) => {
+const FormField: React.FC<FormFieldProps> = ({ label, htmlFor, type, id, isInvalid, errorMessage, placeholder, startcnt, onChange, reqValue, required, minLen, maxLen, value, disabled, min, max }) => {
 
 	return (
 		<div className="flex flex-col space-y-1.5">
@@ -57,6 +59,8 @@ const FormField: React.FC<FormFieldProps> = ({ label, htmlFor, type, id, isInval
 						e.preventDefault(); // Prevent the default Enter key behavior
 					}
 				}}
+				min={min}
+				max={max}
 			/>
 			{isInvalid && <div className="text-red-500 text-xs">{errorMessage}</div>}
 		</div>

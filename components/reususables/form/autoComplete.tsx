@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
-import { cn } from "@/lib";
 import { Label } from "@/components/ui/label";
 import { Autocomplete, AutocompleteItem } from "@heroui/react";
+import { cn, GeneralSans_Meduim } from "@/lib";
 
 interface AutoCompleteFieldProps {
 	label: string;
@@ -25,7 +25,7 @@ const AutoCompleteField: React.FC<AutoCompleteFieldProps> = ({ label, htmlFor, i
 		<div className="flex flex-col space-y-1.5">
 			<Label
 				htmlFor={htmlFor}
-				className={cn("mb-2 text-sm text-black")}>
+				className={cn("mb-2 text-base font-medium text-lightBrown", GeneralSans_Meduim.className)}>
 				{label} <sup className="text-danger">{reqValue}</sup>
 			</Label>
 			<Autocomplete
