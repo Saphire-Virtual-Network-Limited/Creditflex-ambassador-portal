@@ -72,13 +72,22 @@ function SignupViewContent() {
           }
         }
 
-        // Check if user has tokens (indicating they've started signup)
+        // Check if user has tokens and KYC status (indicating they've started signup)
         const hasTokens = TokenManager.isAuthenticated();
+        const kycStatus = TokenManager.getKYCStatus();
 
-        if (hasTokens) {
-          // User has tokens, likely completed step 1, go to step 2
-          setCurrentStep(2);
-          toast.info("Welcome back! Continuing from step 2");
+        if (hasTokens && kycStatus) {
+          // Use KYC status to determine the correct step
+          const nextStep = TokenManager.getNextStep();
+          if (nextStep > 0 && nextStep <= 3) {
+            setCurrentStep(nextStep);
+            toast.info(`Welcome back! Continuing from step ${nextStep}`);
+          } else if (nextStep === 0) {
+            // User has completed all steps, redirect to dashboard
+            toast.info("Registration complete! Redirecting to dashboard...");
+            router.push("/admin-dashboard");
+            return;
+          }
         }
       } catch (error) {
         console.error("Error checking signup progress:", error);

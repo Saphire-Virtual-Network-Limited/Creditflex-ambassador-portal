@@ -2,6 +2,7 @@
 const ACCESS_TOKEN_KEY = 'sapphire_access_token';
 const REFRESH_TOKEN_KEY = 'sapphire_refresh_token';
 const USER_DATA_KEY = 'sapphire_user_data';
+const KYC_STATUS_KEY = 'sapphire_kyc_status';
 
 export interface UserData {
   id?: string;
@@ -15,6 +16,8 @@ export interface AuthTokens {
   accessToken: string;
   refreshToken: string;
 }
+
+export type KYCStatus = 'INITIATED' | 'BANK_LINKED' | 'PROFILE_COMPLETE';
 
 export class TokenManager {
   // Store access token
@@ -101,6 +104,43 @@ export class TokenManager {
     }
   }
 
+  // Store KYC status
+  static setKYCStatus(status: KYCStatus): void {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(KYC_STATUS_KEY, status);
+    }
+  }
+
+  // Get KYC status
+  static getKYCStatus(): KYCStatus | null {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem(KYC_STATUS_KEY) as KYCStatus | null;
+    }
+    return null;
+  }
+
+  // Remove KYC status
+  static removeKYCStatus(): void {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(KYC_STATUS_KEY);
+    }
+  }
+
+  // Get the next step based on current KYC status
+  static getNextStep(): number {
+    const status = this.getKYCStatus();
+    switch (status) {
+      case 'INITIATED':
+        return 2; // User completed step 1, go to step 2
+      case 'BANK_LINKED':
+        return 3; // User completed step 2, go to step 3
+      case 'PROFILE_COMPLETE':
+        return 0; // User completed all steps, can go to dashboard
+      default:
+        return 1; // No status or unknown status, start from step 1
+    }
+  }
+
   // Check if user is authenticated
   static isAuthenticated(): boolean {
     return !!this.getAccessToken();
@@ -111,5 +151,6 @@ export class TokenManager {
     this.removeAccessToken();
     this.removeRefreshToken();
     this.removeUserData();
+    this.removeKYCStatus();
   }
 } 

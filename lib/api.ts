@@ -21,6 +21,10 @@ export function handleAuthResponse(response: any) {
     if (response?.data?.user) {
       TokenManager.setUserData(response.data.user);
     }
+    // Store KYC status if present
+    if (response?.data?.status) {
+      TokenManager.setKYCStatus(response.data.status);
+    }
     return true;
   }
   return false;

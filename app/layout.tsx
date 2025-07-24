@@ -12,7 +12,6 @@ const appColor = "#ffffff";
 export const metadata: Metadata = {
 	title: `${appName} `,
 	description: "Ambassador Portal",
-	manifest: "/manifest",
 };
 
 export const viewport: Viewport = {

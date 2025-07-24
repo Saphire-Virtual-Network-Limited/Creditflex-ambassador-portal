@@ -32,7 +32,7 @@ const TopHeader = ({ onMenuClick }: HeaderProps) => {
 
   // Get user data from TokenManager
   const userData = TokenManager.getUserData();
-  const userName = userData?.name || userData?.email || "User";
+  const userName = userData?.name || userData?.email || "Geraldine";
 
   const handleLogout = () => {
     try {
