@@ -25,7 +25,7 @@ interface AmbassadorProfile {
     institution: string | null;
     fullName: string;
     address: string;
-    ippis: string | null;
+    ippisNumber: string | null;
     password: string;
     accountNumber: string;
     accountName: string;
@@ -430,7 +430,7 @@ const ProfileView = () => {
                                         />
                                         <ProfileDetailsWrap
                                             label="IPPIS number"
-                                            value={profileData.ippis || 'N/A'}
+                                            value={profileData.ippisNumber || 'N/A'}
                                         />
                                     </div>
                                 </div>
