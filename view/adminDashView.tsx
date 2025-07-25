@@ -33,18 +33,13 @@ export default function AdminDashView() {
             setLoadingLeads(true);
             const response = await getLeads();
             if (response?.statusCode === 200 && response?.data?.data) {
-                // Access the nested data structure: response.data.data
                 const leadsArray = Array.isArray(response.data.data) ? response.data.data : [];
                 setLeadsData(leadsArray);
-            } else {
-                console.error("Failed to fetch leads:", response);
-                toast.error("Failed to load leads. Please try again.");
-                setLeadsData([]); // Set empty array on error
             }
         } catch (error) {
             console.error("Error fetching leads:", error);
             toast.error("Failed to load leads. Please try again.");
-            setLeadsData([]); // Set empty array on error
+            setLeadsData([]);
         } finally {
             setLoadingLeads(false);
         }
@@ -57,9 +52,6 @@ export default function AdminDashView() {
             const response = await getAmbassadorProfile();
             if (response?.statusCode === 200 && response?.data) {
                 setAmbassadorProfile(response.data);
-            } else {
-                console.error("Failed to fetch ambassador profile:", response);
-                toast.error("Failed to load profile. Please try again.");
             }
         } catch (error) {
             console.error("Error fetching ambassador profile:", error);
@@ -74,9 +66,6 @@ export default function AdminDashView() {
         fetchLeads();
         fetchAmbassadorProfile();
     }, []);
-
-
-    console.log(loadingProfile)
 
     // Calculate dashboard statistics from real data
     const totalLeads = Array.isArray(leadsData) ? leadsData.length : 0;
@@ -145,14 +134,14 @@ export default function AdminDashView() {
             <div className="flex flex-col gap-4 md:flex-row md:gap-0 justify-between md:items-center">
                 <div>
                     <h1 className="text-xl md:text-2xl font-bold text-lightBrown">
-                        Hello, {ambassadorProfile?.fullName || ""}
+                        Hello, {loadingProfile ? "" : ambassadorProfile?.fullName || ""}
                     </h1>
                     <p className="text-sm md:text-base text-lightBrown">How are you doing today?</p>
                 </div>
                 <div className="hidden md:block">
                     <p className="text-sm font-medium text-lightBrown">Telesales Agent Assigned To:</p>
                     <p className="font-semibold text-right text-primaryBlue">
-                        {ambassadorProfile?.telesalesId ? ambassadorProfile?.telesalesAgentName || "Assigned" : "Non-assigned"}
+                        {ambassadorProfile?.teleSales?.fullName || "Non-assigned"}
                     </p>
                 </div>
             </div>
