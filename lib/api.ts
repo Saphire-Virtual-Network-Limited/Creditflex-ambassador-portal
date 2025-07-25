@@ -232,7 +232,12 @@ export function createLead(data: CreateLeadPayload) {
 }
 
 // Get all leads for ambassador
-export function getLeads() {
-  return apiCall("/ambassador/leads", "GET");
+export function getLeads(limit?: number, page?: number) {
+  const params = new URLSearchParams();
+  if (limit) params.append('limit', limit.toString());
+  if (page) params.append('page', page.toString());
+  
+  const endpoint = params.toString() ? `/ambassador/leads?${params.toString()}` : "/ambassador/leads";
+  return apiCall(endpoint, "GET");
 }
   

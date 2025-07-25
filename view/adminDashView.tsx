@@ -12,8 +12,6 @@ import React from "react"
 import { useAuthListener } from "@/lib/tokenManager"
 
 export default function AdminDashView() {
-    const [currentPage, setCurrentPage] = useState(1)
-    const [pageSize, setPageSize] = useState(10)
     const router = useRouter();
 
     // Listen for auth events (sign-out, token expiration)
@@ -27,11 +25,11 @@ export default function AdminDashView() {
     const [ambassadorProfile, setAmbassadorProfile] = useState<any>(null);
     const [loadingProfile, setLoadingProfile] = useState(false);
 
-    // Fetch leads from API
+    // Fetch leads from API - only get 10 leads for dashboard
     const fetchLeads = async () => {
         try {
             setLoadingLeads(true);
-            const response = await getLeads();
+            const response = await getLeads(10, 1); // Get first 10 leads
             if (response?.statusCode === 200 && response?.data?.data) {
                 const leadsArray = Array.isArray(response.data.data) ? response.data.data : [];
                 setLeadsData(leadsArray);
@@ -80,11 +78,9 @@ export default function AdminDashView() {
             width: "w-16",
             minWidth: "60px",
             render: (value: string, row: any) => {
-                // Find the index of this row in the current page data
-                const currentPageData = leadsData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-                const rowIndex = currentPageData.findIndex(item => item.id === row.id);
-                const actualIndex = (currentPage - 1) * pageSize + rowIndex + 1;
-                return actualIndex;
+                // Use the row index from the data array
+                const rowIndex = leadsData.findIndex(item => item.id === row.id);
+                return rowIndex + 1;
             }
         },
         { key: "leadName", header: "Lead Name", width: "w-32", minWidth: "120px" },
@@ -169,15 +165,16 @@ export default function AdminDashView() {
                         </div>
                     ) : (
                         <DataTable
-                            data={Array.isArray(leadsData) ? leadsData.slice((currentPage - 1) * pageSize, currentPage * pageSize) : []}
+                            data={Array.isArray(leadsData) ? leadsData : []}
                             columns={dashboardLeadColumns}
                             totalItems={Array.isArray(leadsData) ? leadsData.length : 0}
-                            currentPage={currentPage}
-                            pageSize={pageSize}
-                            onPageChange={setCurrentPage}
-                            onPageSizeChange={setPageSize}
+                            currentPage={1}
+                            pageSize={10}
+                            onPageChange={() => {}}
+                            onPageSizeChange={() => {}}
                             emptyMessage="No leads registered"
                             hasOriginalData={Array.isArray(leadsData) && leadsData.length > 0}
+                            showPagination={false}
                         />
                     )}
                 </CardBody>

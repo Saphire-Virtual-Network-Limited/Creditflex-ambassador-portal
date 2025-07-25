@@ -290,7 +290,18 @@ const AdminCommissionView = () => {
     });
 
     const dashboardLeadColumns: Column[] = [
-        { key: "id", header: "S/N", width: "w-16", minWidth: "60px" },
+        { 
+            key: "id", 
+            header: "S/N", 
+            width: "w-16", 
+            minWidth: "60px",
+            render: (value: string, row: any) => {
+                // Calculate the correct index based on current page and page size
+                const rowIndex = filteredData.findIndex(item => item.id === row.id);
+                const actualIndex = (currentPage - 1) * pageSize + rowIndex + 1;
+                return actualIndex;
+            }
+        },
         { key: "leadName", header: "Lead Name", width: "w-32", minWidth: "120px" },
         { key: "ippis", header: "IPPIS Number", width: "w-28", minWidth: "100px" },
         { key: "phone", header: "Phone Number", width: "w-32", minWidth: "110px" },
@@ -337,7 +348,7 @@ const AdminCommissionView = () => {
             <Card className="bg-white border border-darkCharcoal/20 rounded-lg">
                 <CardBody className="p-6 shadow-md">
                     <DataTable
-                        data={filteredData.slice((currentPage - 1) * pageSize, currentPage * pageSize)}
+                        data={filteredData}
                         columns={dashboardLeadColumns}
                         totalItems={filteredData.length}
                         currentPage={currentPage}
