@@ -462,7 +462,7 @@ const ProfileView = () => {
                                 <p className="md:text-right mb-2 text-dimRed text-sm">Please contact support to change account details</p>
                             </div>
                             {/* Referral Information */}
-                            <div className="pt-6">
+                            {/* <div className="pt-6">
                                 <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between">
                                     <div>
                                         <ProfileDetailsWrap
@@ -477,7 +477,7 @@ const ProfileView = () => {
                                         />
                                     </div>
                                 </div>
-                            </div>
+                            </div> */}
 
                         </div>
                     ) : (
