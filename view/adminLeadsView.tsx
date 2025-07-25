@@ -660,10 +660,10 @@ export default function AdminLeadsView() {
     const [loadingLeads, setLoadingLeads] = useState(false);
 
     // Fetch leads from API
-    const fetchLeads = async () => {
+    const fetchLeads = async (page: number = 1, limit: number = 10) => {
         try {
             setLoadingLeads(true);
-            const response = await getLeads();
+            const response = await getLeads(limit, page);
             if (response?.statusCode === 200 && response?.data?.data) {
                 // Access the nested data structure: response.data.data
                 const leadsArray = Array.isArray(response.data.data) ? response.data.data : [];
@@ -684,18 +684,19 @@ export default function AdminLeadsView() {
 
     // Fetch leads on component mount
     React.useEffect(() => {
-        fetchLeads();
-    }, []);
+        fetchLeads(currentPage, pageSize);
+    }, [currentPage, pageSize]);
 
     const handleSuccess = (leadName?: string) => {
         setCreatedLeadName(leadName || "");
         setShowSuccess(true);
         // Refresh leads data after successful creation
-        fetchLeads();
+        fetchLeads(currentPage, pageSize);
     };
     const closeSuccess = () => setShowSuccess(false);
 
-    // Filter based on search input
+    // Filter based on search input - This will need to be handled by the server
+    // For now, we'll keep the client-side filtering but it should be moved to server-side
     const filteredData = Array.isArray(leadsData) ? leadsData.filter((lead) => {
         const searchTerm = searchValue.toLowerCase();
 
@@ -722,9 +723,8 @@ export default function AdminLeadsView() {
             width: "w-16", 
             minWidth: "60px",
             render: (value: string, row: any) => {
-                // Find the index of this row in the current page data
-                const currentPageData = filteredData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-                const rowIndex = currentPageData.findIndex(item => item.id === row.id);
+                // Calculate the correct index based on current page and page size
+                const rowIndex = filteredData.findIndex(item => item.id === row.id);
                 const actualIndex = (currentPage - 1) * pageSize + rowIndex + 1;
                 return actualIndex;
             }
@@ -799,9 +799,9 @@ export default function AdminLeadsView() {
                         </div>
                     ) : (
                         <DataTable
-                            data={Array.isArray(filteredData) ? filteredData.slice((currentPage - 1) * pageSize, currentPage * pageSize) : []}
+                            data={filteredData}
                             columns={dashboardLeadColumns}
-                            totalItems={Array.isArray(filteredData) ? filteredData.length : 0}
+                            totalItems={filteredData.length}
                             currentPage={currentPage}
                             pageSize={pageSize}
                             onPageChange={setCurrentPage}
