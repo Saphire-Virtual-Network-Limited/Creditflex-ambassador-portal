@@ -25,7 +25,7 @@ interface AmbassadorProfile {
     institution: string | null;
     fullName: string;
     address: string;
-    ippisNumber: string | null;
+    ippis: string | null;
     password: string;
     accountNumber: string;
     accountName: string;
@@ -37,6 +37,15 @@ interface AmbassadorProfile {
     teleSalesId: string | null;
     createdAt: string;
     updatedBy: string;
+    teleSales?: {
+        teleSalesId: string;
+        fullName: string;
+        email: string;
+        phoneNumber: string;
+        role: string;
+        createdAt: string;
+        updatedAt: string;
+    };
 }
 
 function UpdateBankDetailsModal({ isOpen, onClose, onProfileUpdate }: {
@@ -413,7 +422,7 @@ const ProfileView = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                         <ProfileDetailsWrap
                                             label="Telesales agent assigned to:"
-                                            value={profileData.teleSalesId || 'Not assigned'}
+                                            value={profileData.teleSales?.fullName || 'Non-assigned'}
                                         />
                                         <ProfileDetailsWrap
                                             label="Institution/Company"
@@ -421,7 +430,7 @@ const ProfileView = () => {
                                         />
                                         <ProfileDetailsWrap
                                             label="IPPIS number"
-                                            value={profileData.ippisNumber || 'N/A'}
+                                            value={profileData.ippis || 'N/A'}
                                         />
                                     </div>
                                 </div>

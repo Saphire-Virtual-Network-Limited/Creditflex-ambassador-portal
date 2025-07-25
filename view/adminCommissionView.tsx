@@ -40,7 +40,6 @@ const AdminCommissionView = () => {
     const handleDateRangeChange = (startDate: Date, endDate: Date) => {
         setSelectedStartDate(startDate);
         setSelectedEndDate(endDate);
-        console.log('Date range changed:', startDate, endDate)
     }
 
     const calculateDaysDifference = () => {
